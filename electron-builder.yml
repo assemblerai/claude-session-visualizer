@@ -1,0 +1,23 @@
+appId: com.byrotron.session-manager
+productName: Session Manager
+
+directories:
+  buildResources: build
+  output: dist
+
+# electron-vite emits the three targets into out/. Nothing else is application code.
+files:
+  - out/**
+  - package.json
+  - '!**/*.map'
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  artifactName: ${productName}-${version}-${arch}-setup.${ext}

@@ -1,0 +1,61 @@
+@import 'tailwindcss';
+
+/*
+ * The palette. Neutral greys with one saturated brand colour, so the brand is
+ * always the loudest thing on screen. The data-viz colours (per agent, per
+ * token kind) will be added here as tokens when the first chart needs them.
+ */
+@theme {
+  /* Surfaces: screen, nav, top bar, popovers. */
+  --color-surface: #1c1c1e;
+  --color-surface-sunken: #252526;
+  --color-surface-raised: #323233;
+  --color-surface-overlay: #3f3f41;
+
+  /* Lines */
+  --color-line: #333335;
+  --color-line-control: #454547;
+  --color-line-strong: #5a5a5c;
+
+  /* Text, and the grey icons are drawn in. */
+  --color-on-surface: #cccccc;
+  --color-muted: #858585;
+  --color-subtle: #6a6a6c;
+
+  /* The one high-emphasis colour. */
+  --color-primary: #d97757;
+  --color-primary-hover: #e3906f;
+  --color-on-primary: #ffffff;
+
+  /* State. Never the only signal -- always paired with text. */
+  --color-success: #34d399;
+  --color-danger: #f87171;
+  --color-warning: #fbbf24;
+  --color-info: #38bdf8;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden; /* the app manages its own scroll regions */
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+  accent-color: var(--color-primary);
+}
+
+button,
+select,
+summary,
+[role='button'] {
+  cursor: pointer;
+}

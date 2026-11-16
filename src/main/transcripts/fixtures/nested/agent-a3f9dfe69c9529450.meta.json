@@ -1,0 +1,13 @@
+{
+ "agentType": "general-purpose",
+ "isBuiltIn": true,
+ "launchedWithDefaults": true,
+ "description": "4e966c182eaeef63e88b0863f07",
+ "toolUseId": "toolu_01J1PEbRzP7vydn5tB6Adjc8",
+ "parentAgentId": "a440e649178b9695b",
+ "spawnDepth": 2,
+ "requestShape": "background",
+ "requestNonInteractive": true,
+ "pickedEffortModel": "9c82620f92174d9",
+ "finished": true
+}

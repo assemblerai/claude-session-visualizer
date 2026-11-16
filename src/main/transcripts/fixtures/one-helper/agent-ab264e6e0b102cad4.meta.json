@@ -1,0 +1,11 @@
+{
+ "agentType": "web-fetch",
+ "isBuiltIn": true,
+ "description": "8790e36972ae3d9aef5eae25",
+ "toolUseId": "toolu_017o5XoyyRBrxPmJHaxBhpuC",
+ "spawnDepth": 1,
+ "requestShape": "foreground",
+ "requestNonInteractive": false,
+ "pickedEffortModel": "a9f48f8e0418957",
+ "finished": true
+}
