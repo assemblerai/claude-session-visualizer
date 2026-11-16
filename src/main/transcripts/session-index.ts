@@ -21,7 +21,7 @@ interface CachedRow extends Row {
 const TIMESTAMP = /"timestamp":"(\d{4}-\d{2}-\d{2}T[^"]+)"/
 
 /** Reads the cheap fields off a session file's lines, parsing only the few that matter. */
-export function createSummarizer(): { line(line: string): void; done(helperCount: number): Row } {
+export function createSummarizer(): { line: (line: string) => void; done: (helperCount: number) => Row } {
   let title: string | null = null
   let startedAt: number | null = null
   let endedAt: number | null = null
@@ -151,8 +151,7 @@ export function createSessionIndex({ disk, imported, cacheFile, log }: SessionIn
         const sessionId = sessionIdOf(path)
         const s = await disk.stat(path)
         const known = rows.get(path)
-        if (s !== null && !(known !== undefined && known.size === s.size && known.mtimeMs === s.mtimeMs))
-          enqueue({ sessionId, path, ...s })
+        if (s !== null && !(known?.size === s.size && known.mtimeMs === s.mtimeMs)) enqueue({ sessionId, path, ...s })
         const row: Row = known ?? EMPTY
         summaries.push({
           sessionId,

@@ -178,7 +178,7 @@ export function bodyRefOf(nodeId: string, side: 'in' | 'out', i: number): string
 export function parseBodyRef(bodyRef: string): { nodeId: string; side: 'in' | 'out'; i: number } | null {
   const match = /^(.*)\|(in|out):(\d+)$/s.exec(bodyRef)
   if (!match) return null
-  return { nodeId: match[1] as string, side: match[2] as 'in' | 'out', i: Number(match[3]) }
+  return { nodeId: match[1]!, side: match[2] as 'in' | 'out', i: Number(match[3]) }
 }
 
 export function toNodeDetail(nodeId: string, detail: FullDetail): NodeDetail {

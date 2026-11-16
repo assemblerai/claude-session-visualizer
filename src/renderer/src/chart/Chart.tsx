@@ -162,12 +162,15 @@ export function Chart({ graph, mode, onModeChange, selectedId, onSelect, onOpen 
         style={{
           width: size.width,
           height: size.height,
-          cursor: areaTool ? 'crosshair' : hoverIds.current.node || hoverIds.current.edge ? 'pointer' : 'grab',
+          cursor: areaTool ? 'crosshair' : hover ? 'pointer' : 'grab',
         }}
         className="block outline-none focus-visible:ring-1 focus-visible:ring-primary"
         onPointerDown={(event) => {
           const p = local(event)
           drag.current = { ...p, view, moved: false, box: areaTool || event.shiftKey }
+          // No tooltip while dragging; the next move after release re-hits.
+          hoverIds.current = { node: null, edge: null }
+          setHover(null)
           event.currentTarget.setPointerCapture(event.pointerId)
         }}
         onPointerMove={(event) => {
@@ -259,7 +262,7 @@ export function Chart({ graph, mode, onModeChange, selectedId, onSelect, onOpen 
           }}
         />
       )}
-      {hover && !drag.current && (
+      {hover && (
         <div
           className="pointer-events-none absolute z-10 max-w-80 truncate rounded bg-surface-overlay px-2 py-1 text-xs text-on-surface shadow"
           style={{ left: Math.min(hover.x + 12, size.width - 200), top: hover.y + 14 }}

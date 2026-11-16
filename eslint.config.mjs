@@ -53,6 +53,10 @@ export default tseslint.config(
       eqeqeq: ['error', 'always', { null: 'ignore' }],
       'no-console': ['error', { allow: ['warn', 'error'] }],
       'prefer-const': 'error',
+      // `env.X || fallback` deliberately treats an empty string as unset.
+      '@typescript-eslint/prefer-nullish-coalescing': ['error', { ignorePrimitives: { string: true } }],
+      // Implementing a Promise-returning interface with `async` is idiomatic: a throw becomes a rejection.
+      '@typescript-eslint/require-await': 'off',
       '@typescript-eslint/ban-ts-comment': [
         'error',
         { 'ts-expect-error': 'allow-with-description', 'ts-ignore': true, 'ts-nocheck': true },
@@ -81,6 +85,9 @@ export default tseslint.config(
     },
   },
 
+  // The logger is the one place that writes to the console.
+  { files: ['src/main/diagnostics/log.ts'], rules: { 'no-console': 'off' } },
+
   // ---- renderer -----------------------------------------------------------
   {
     files: ['src/renderer/**/*.{ts,tsx}'],
@@ -99,6 +106,11 @@ export default tseslint.config(
     plugins: { '@eslint-community/eslint-comments': eslintComments },
     rules: {
       'react/prop-types': 'off', // TypeScript types the props.
+      // The process chart is a keyboard-driven <canvas role="application">.
+      'jsx-a11y/no-interactive-element-to-noninteractive-role': [
+        'error',
+        { tr: ['none', 'presentation'], canvas: ['img', 'application'] },
+      ],
       'react-hooks/exhaustive-deps': 'error',
       'no-restricted-syntax': ['error', NO_DEFAULT_EXPORT, NO_CLASS_COMPONENT],
       '@eslint-community/eslint-comments/no-restricted-disable': ['error', 'react-hooks/exhaustive-deps'],
@@ -129,7 +141,11 @@ export default tseslint.config(
   // ---- specifications (after the blocks above, so it applies over them) ----
   {
     files: ['src/**/*.spec.{ts,tsx}'],
-    rules: { 'no-restricted-imports': ['error', { paths: FORBIDDEN_IN_SPECS }] },
+    rules: {
+      'no-restricted-imports': ['error', { paths: FORBIDDEN_IN_SPECS }],
+      // Asymmetric matchers (`expect.any`, `expect.closeTo`) are typed `any`.
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+    },
   },
 
   // ---- config files: tooling expects a default export ----------------------

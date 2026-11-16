@@ -23,7 +23,7 @@ export function useSessionGraph(sessionId: string | null, live: boolean): OpenSe
       placeholderData: keepPreviousData,
     },
   )
-  const graph = data && data.sessionId === sessionId ? data : null
+  const graph = data?.sessionId === sessionId ? data : null
   return { graph, isLoading: sessionId !== null && isLoading, error: error?.message ?? null }
 }
 

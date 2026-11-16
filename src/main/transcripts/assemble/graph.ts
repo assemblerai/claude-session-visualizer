@@ -622,7 +622,7 @@ export function assemble(files: SessionFiles): Assembled {
     .sort((x, y) => x.node.startedAt - y.node.startedAt || x.i - y.i)
     .map((x) => x.node)
 
-  const startedAt = nodes.length === 0 ? 0 : (nodes[0] as GraphNode).startedAt
+  const startedAt = nodes.length === 0 ? 0 : nodes[0]!.startedAt
   const endedAt = nodes.reduce((max, n) => Math.max(max, n.endedAt), startedAt)
   const totals = emptyTotals()
   for (const agent of agents) {

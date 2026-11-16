@@ -43,6 +43,6 @@ export const BRANCH_COLOURS: readonly string[] = [
 ]
 
 export function branchColour(agentIndex: number): string {
-  if (agentIndex <= 0) return BRANCH_COLOURS[0] as string
-  return BRANCH_COLOURS[1 + ((agentIndex - 1) % (BRANCH_COLOURS.length - 1))] as string
+  if (agentIndex <= 0) return BRANCH_COLOURS[0]!
+  return BRANCH_COLOURS[1 + ((agentIndex - 1) % (BRANCH_COLOURS.length - 1))]!
 }

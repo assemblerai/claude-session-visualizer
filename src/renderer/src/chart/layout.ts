@@ -118,7 +118,7 @@ export function rankNodes(graph: SessionGraph): Map<string, number> {
         // starts another: a session opens with twenty-odd of them, and one
         // tall stack would push every helper far from the trunk.
         const stack = stacks.get(key)
-        if (stack && stack.base === r) {
+        if (stack?.base === r) {
           stack.count += 1
           r += Math.floor(stack.count / SPACING.contextStack)
         } else stacks.set(key, { base: r, count: 0 })
@@ -357,7 +357,7 @@ export function layout(graph: SessionGraph, mode: LayoutMode): Layout {
     ranges.forEach((r, i) => {
       const a = Math.max(0, Math.floor(Math.min(r.x0, r.x1) / SPACING.bucket))
       const b = Math.min(bucketCount - 1, Math.floor(Math.max(r.x0, r.x1) / SPACING.bucket))
-      for (let k = a; k <= b; k++) (buckets[k] as number[]).push(i)
+      for (let k = a; k <= b; k++) buckets[k]!.push(i)
     })
     return buckets
   }
@@ -381,6 +381,6 @@ export function inRange(buckets: number[][], x0: number, x1: number): number[] {
   const b = Math.min(buckets.length - 1, Math.floor(x1 / SPACING.bucket))
   if (a === b) return buckets[a] ?? []
   const seen = new Set<number>()
-  for (let k = a; k <= b; k++) for (const i of buckets[k] as number[]) seen.add(i)
+  for (let k = a; k <= b; k++) for (const i of buckets[k]!) seen.add(i)
   return [...seen]
 }

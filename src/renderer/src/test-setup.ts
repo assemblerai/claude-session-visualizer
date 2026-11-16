@@ -8,8 +8,14 @@ afterEach(() => {
 
 if (!('ResizeObserver' in globalThis)) {
   globalThis.ResizeObserver = class {
-    observe(): void {}
-    unobserve(): void {}
-    disconnect(): void {}
+    observe(): void {
+      // jsdom has no layout; nothing to observe.
+    }
+    unobserve(): void {
+      // Stub.
+    }
+    disconnect(): void {
+      // Stub.
+    }
   }
 }

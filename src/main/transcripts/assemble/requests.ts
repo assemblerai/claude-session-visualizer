@@ -137,7 +137,7 @@ export function indexRequests(records: readonly TranscriptRecord[]): RequestInde
     }
     let list: string[] = []
     for (let i = chain.length - 1; i >= 0; i--) {
-      const r = chain[i] as ApiRequestRecord
+      const r = chain[i]!
       list = r.base !== undefined && byId.has(r.base) ? list.slice(0, r.keep).concat(r.tail) : [...r.tail]
     }
     return list
@@ -149,7 +149,7 @@ export function indexRequests(records: readonly TranscriptRecord[]): RequestInde
     fingerprints,
     kept(requestId) {
       const r = byId.get(requestId)
-      if (!r || r.base === undefined || !byId.has(r.base)) return 0
+      if (r?.base === undefined || !byId.has(r.base)) return 0
       return Math.min(r.keep, fingerprints(r.base).length)
     },
     resolve: (hash) => lookup.get(hash),

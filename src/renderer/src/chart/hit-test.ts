@@ -6,7 +6,7 @@ import { inRange, type EdgePath, type Layout, type Placed } from './layout'
 export function nodeAt(layout: Layout, x: number, y: number): Placed | null {
   let hit: Placed | null = null
   for (const i of inRange(layout.nodeBuckets, x, x)) {
-    const n = layout.nodes[i] as Placed
+    const n = layout.nodes[i]!
     if (x >= n.x && x <= n.x + n.w && y >= n.y && y <= n.y + n.h) hit = n
   }
   return hit
@@ -54,7 +54,7 @@ export function edgeAt(layout: Layout, x: number, y: number, tolerance: number):
   let hit: EdgePath | null = null
   let best = tolerance
   for (const i of inRange(layout.edgeBuckets, x - tolerance, x + tolerance)) {
-    const e = layout.edges[i] as EdgePath
+    const e = layout.edges[i]!
     if (y < Math.min(e.y1, e.y2) - tolerance || y > Math.max(e.y1, e.y2) + tolerance) continue
     const d = distanceToEdge(e, x, y)
     if (d <= best) {

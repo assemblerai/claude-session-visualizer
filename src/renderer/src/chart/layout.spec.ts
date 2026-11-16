@@ -11,9 +11,9 @@ function overlapping(placed: Layout): [Placed, Placed] | null {
   for (const nodes of byBand.values()) {
     nodes.sort((a, b) => a.x - b.x)
     for (let i = 0; i < nodes.length; i++) {
-      const a = nodes[i] as Placed
-      for (let j = i + 1; j < nodes.length && (nodes[j] as Placed).x < a.x + a.w; j++) {
-        const b = nodes[j] as Placed
+      const a = nodes[i]!
+      for (let j = i + 1; j < nodes.length && nodes[j]!.x < a.x + a.w; j++) {
+        const b = nodes[j]!
         if (b.y < a.y + a.h && a.y < b.y + b.h) return [a, b]
       }
     }
@@ -68,7 +68,7 @@ describe.each(GRAPH_FIXTURES)('layout of %s', (name) => {
     const placed = layout(graph, 'ordered')
 
     expect(new Set(inRange(placed.nodeBuckets, 0, placed.width)).size).toBe(placed.nodes.length)
-    const first = placed.nodes[0] as Placed
+    const first = placed.nodes[0]!
     expect(inRange(placed.nodeBuckets, first.x, first.x + 1).map((i) => placed.nodes[i])).toContain(first)
   })
 })
@@ -272,8 +272,8 @@ describe('layout, rows', () => {
     const requests = placed.nodes
       .filter((n) => n.node.kind === 'request')
       .sort((a, b) => b.node.endedAt - b.node.startedAt - (a.node.endedAt - a.node.startedAt))
-    const longest = requests[0] as Placed
-    const shortest = requests[requests.length - 1] as Placed
+    const longest = requests[0]!
+    const shortest = requests[requests.length - 1]!
 
     expect(longest.w).toBeGreaterThan(shortest.w)
     for (const n of placed.nodes) expect(n.w).toBeGreaterThanOrEqual(SPACING.minScaleWidth)

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { GraphNode, NodeKind, SessionGraph } from '../../../shared/session.js'
+import type { NodeKind, SessionGraph } from '../../../shared/session.js'
 import { totalTokens } from '../../../shared/session.js'
 import { Refusal } from '../../errors.js'
 import { FIXTURE_NAMES, loadFixtureFiles } from '../fixtures.js'
@@ -55,9 +55,7 @@ describe('assemble, on every fixture', () => {
 
     expect(ids.size).toBe(graph.nodes.length)
     for (let i = 1; i < graph.nodes.length; i++) {
-      expect((graph.nodes[i] as GraphNode).startedAt).toBeGreaterThanOrEqual(
-        (graph.nodes[i - 1] as GraphNode).startedAt,
-      )
+      expect(graph.nodes[i]!.startedAt).toBeGreaterThanOrEqual(graph.nodes[i - 1]!.startedAt)
     }
     for (const e of graph.edges) expect(ids.has(e.from) && ids.has(e.to)).toBe(true)
     for (const n of graph.nodes) expect(n.endedAt).toBeGreaterThanOrEqual(n.startedAt)
@@ -238,7 +236,7 @@ describe('buildDetail', () => {
 
   it("shows a request's system prompt, tools and messages, with repeated and new parts separated", () => {
     const requests = graph.nodes.filter((n) => n.kind === 'request' && n.agentId === 'main')
-    const { input, output } = detailOf((requests[1] as GraphNode).id)
+    const { input, output } = detailOf(requests[1]!.id)
 
     expect(input[0]).toMatchObject({ title: 'System prompt', role: 'system' })
     expect(input[1]?.title).toMatch(/^Tools \(\d+\)$/)

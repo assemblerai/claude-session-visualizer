@@ -155,7 +155,7 @@ export function planAgents(files: SessionFiles): AgentPlans {
   for (const helper of helpers) {
     const parentId = helper.meta.parentAgentId ?? MAIN_AGENT
     const parent = factsOf(parentId)
-    if (!parent || !parent.agentCalls.has(helper.meta.toolUseId)) {
+    if (!parent?.agentCalls.has(helper.meta.toolUseId)) {
       unmatched.push(helper.agentId)
       continue
     }

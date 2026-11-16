@@ -239,7 +239,7 @@ export function draw(
     ctx.setLineDash([])
     ctx.beginPath()
     for (const i of edges) {
-      const e = layout.edges[i] as EdgePath
+      const e = layout.edges[i]!
       ctx.moveTo(e.x1 * view.scale + view.tx, e.y1 * view.scale + view.ty)
       ctx.lineTo(e.x2 * view.scale + view.tx, e.y2 * view.scale + view.ty)
     }
@@ -247,7 +247,7 @@ export function draw(
     ctx.globalAlpha = 1
   } else {
     for (const i of edges) {
-      const e = layout.edges[i] as EdgePath
+      const e = layout.edges[i]!
       if (Math.max(e.y1, e.y2) < wy0 || Math.min(e.y1, e.y2) > wy1) continue
       drawEdge(ctx, e, view, opts.hoverEdgeId === e.edge.id)
     }
@@ -255,7 +255,7 @@ export function draw(
   }
 
   for (const i of inRange(layout.nodeBuckets, wx0, wx1)) {
-    const n = layout.nodes[i] as Placed
+    const n = layout.nodes[i]!
     if (n.x > wx1 || n.x + n.w < wx0) continue
     if (n.node.kind !== 'compaction' && (n.y > wy1 || n.y + n.h < wy0)) continue
     drawNode(ctx, n, view, opts, height)
