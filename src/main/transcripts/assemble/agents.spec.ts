@@ -14,7 +14,9 @@ describe('planAgents', () => {
     const [, helper] = planAgents(loadFixtureFiles('one-helper')).agents
 
     expect(helper).toMatchObject({ parentId: 'main', depth: 1, background: false, type: 'web-fetch' })
-    expect(helper?.runs).toEqual([{ spawnToolUseId: 'toolu_017o5XoyyRBrxPmJHaxBhpuC', startUuid: null, join: { via: 'tool-result' } }])
+    expect(helper?.runs).toEqual([
+      { spawnToolUseId: 'toolu_017o5XoyyRBrxPmJHaxBhpuC', startUuid: null, join: { via: 'tool-result' } },
+    ])
   })
 
   it('builds the tree of nested helpers from who started whom', () => {
@@ -32,8 +34,16 @@ describe('planAgents', () => {
 
     expect(helper?.background).toBe(true)
     expect(helper?.runs).toEqual([
-      { spawnToolUseId: 'toolu_01K1AEtaSw9gV4HE2phv53eh', startUuid: null, join: { via: 'record', uuid: '32a1f560-387d-46f0-ad81-ca715eb7fee0' } },
-      { spawnToolUseId: 'toolu_01FJN51mTdUhY9bTJywRmFCh', startUuid: 'e0da9cdd-8eac-4a73-84af-e25c63faa7f9', join: { via: 'record', uuid: '23246291-2bb9-4ad2-8cae-f3f72ce24135' } },
+      {
+        spawnToolUseId: 'toolu_01K1AEtaSw9gV4HE2phv53eh',
+        startUuid: null,
+        join: { via: 'record', uuid: '32a1f560-387d-46f0-ad81-ca715eb7fee0' },
+      },
+      {
+        spawnToolUseId: 'toolu_01FJN51mTdUhY9bTJywRmFCh',
+        startUuid: 'e0da9cdd-8eac-4a73-84af-e25c63faa7f9',
+        join: { via: 'record', uuid: '23246291-2bb9-4ad2-8cae-f3f72ce24135' },
+      },
     ])
   })
 

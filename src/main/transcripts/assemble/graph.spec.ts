@@ -42,7 +42,9 @@ describe('assemble, node and edge counts per fixture', () => {
 
     expect(kinds(graph)).toMatchObject({ request: 82, agent: 3, prompt: 15, result: 2 })
     expect(edgeKinds(graph)).toMatchObject({ 'spawn:in': 3, 'join:out': 2 })
-    expect(graph.warnings).toEqual([{ kind: 'synthetic-reply', subject: 'messages Claude Code wrote itself', count: 13 }])
+    expect(graph.warnings).toEqual([
+      { kind: 'synthetic-reply', subject: 'messages Claude Code wrote itself', count: 13 },
+    ])
   })
 })
 
@@ -53,7 +55,9 @@ describe('assemble, on every fixture', () => {
 
     expect(ids.size).toBe(graph.nodes.length)
     for (let i = 1; i < graph.nodes.length; i++) {
-      expect((graph.nodes[i] as GraphNode).startedAt).toBeGreaterThanOrEqual((graph.nodes[i - 1] as GraphNode).startedAt)
+      expect((graph.nodes[i] as GraphNode).startedAt).toBeGreaterThanOrEqual(
+        (graph.nodes[i - 1] as GraphNode).startedAt,
+      )
     }
     for (const e of graph.edges) expect(ids.has(e.from) && ids.has(e.to)).toBe(true)
     for (const n of graph.nodes) expect(n.endedAt).toBeGreaterThanOrEqual(n.startedAt)
@@ -118,7 +122,11 @@ describe('assemble, helpers', () => {
 
     expect(helper?.runs).toHaveLength(2)
     for (const run of helper?.runs ?? []) {
-      expect(byId.get(run.joinNodeId ?? '')).toMatchObject({ kind: 'context', agentId: 'main', context: { attachmentType: 'task-notification' } })
+      expect(byId.get(run.joinNodeId ?? '')).toMatchObject({
+        kind: 'context',
+        agentId: 'main',
+        context: { attachmentType: 'task-notification' },
+      })
       expect(byId.get(run.headNodeId)?.kind).toBe('agent')
     }
     expect(byId.get(helper?.runs[1]?.spawnNodeId ?? '')?.label).toBe('SendMessage')
@@ -134,8 +142,14 @@ describe('assemble, helpers', () => {
 
 describe('assemble, rare shapes', () => {
   const stamp = (s: number): string => `2026-11-15T00:00:${String(s).padStart(2, '0')}.000Z`
-  const prompt = JSON.stringify({ type: 'user', uuid: 'u1', timestamp: stamp(0), message: { role: 'user', content: 'hi' } })
-  const request = (id: string, s: number): string => JSON.stringify({ type: 'api-request', id, timestamp: stamp(s), params: { model: 'claude-next-9' }, tail: ['f00d'] })
+  const prompt = JSON.stringify({
+    type: 'user',
+    uuid: 'u1',
+    timestamp: stamp(0),
+    message: { role: 'user', content: 'hi' },
+  })
+  const request = (id: string, s: number): string =>
+    JSON.stringify({ type: 'api-request', id, timestamp: stamp(s), params: { model: 'claude-next-9' }, tail: ['f00d'] })
 
   it('refuses a session with no request records', () => {
     const files = { sessionId: 's', main: parseTranscript(prompt), helpers: [] }
@@ -144,20 +158,38 @@ describe('assemble, rare shapes', () => {
   })
 
   it('draws a request with no reply as one, and not as an error', () => {
-    const { graph } = assemble({ sessionId: 's', main: parseTranscript([prompt, request('r1', 1)].join('\n')), helpers: [] })
+    const { graph } = assemble({
+      sessionId: 's',
+      main: parseTranscript([prompt, request('r1', 1)].join('\n')),
+      helpers: [],
+    })
     const node = graph.nodes.find((n) => n.kind === 'request')
 
-    expect(node).toMatchObject({ error: false, request: { hasReply: false }, label: 'claude-next-9 · no reply recorded' })
+    expect(node).toMatchObject({
+      error: false,
+      request: { hasReply: false },
+      label: 'claude-next-9 · no reply recorded',
+    })
   })
 
   it('shows an unresolved fingerprint as "content not recorded", and warns', () => {
-    const { graph, sources, requestIndexes } = assemble({ sessionId: 's', main: parseTranscript([prompt, request('r1', 1)].join('\n')), helpers: [] })
+    const { graph, sources, requestIndexes } = assemble({
+      sessionId: 's',
+      main: parseTranscript([prompt, request('r1', 1)].join('\n')),
+      helpers: [],
+    })
     const source = sources.get('req:r1')
     if (!source) throw new Error('no request node')
     const detail = toNodeDetail('req:r1', buildDetail(source, requestIndexes))
 
-    expect(detail.input).toEqual([expect.objectContaining({ title: 'Message 1 · content not recorded', preview: 'fingerprint f00d' })])
-    expect(graph.warnings).toContainEqual({ kind: 'unresolved-fingerprint', subject: 'messages whose content was not recorded', count: 1 })
+    expect(detail.input).toEqual([
+      expect.objectContaining({ title: 'Message 1 · content not recorded', preview: 'fingerprint f00d' }),
+    ])
+    expect(graph.warnings).toContainEqual({
+      kind: 'unresolved-fingerprint',
+      subject: 'messages whose content was not recorded',
+      count: 1,
+    })
   })
 
   it('shows "no price", never zero, for a model it has no price for', () => {
@@ -166,16 +198,31 @@ describe('assemble, rare shapes', () => {
       uuid: 'a1',
       timestamp: stamp(2),
       requestRef: 'r1',
-      message: { id: 'm1', role: 'assistant', model: 'claude-next-9', content: [{ type: 'text', text: 'yo' }], stop_reason: 'end_turn', usage: { input_tokens: 1, output_tokens: 1 } },
+      message: {
+        id: 'm1',
+        role: 'assistant',
+        model: 'claude-next-9',
+        content: [{ type: 'text', text: 'yo' }],
+        stop_reason: 'end_turn',
+        usage: { input_tokens: 1, output_tokens: 1 },
+      },
     })
-    const { graph } = assemble({ sessionId: 's', main: parseTranscript([prompt, request('r1', 1), reply].join('\n')), helpers: [] })
+    const { graph } = assemble({
+      sessionId: 's',
+      main: parseTranscript([prompt, request('r1', 1), reply].join('\n')),
+      helpers: [],
+    })
 
     expect(graph.totals.costUsd).toBeNull()
     expect(graph.nodes.map((n) => n.kind)).toEqual(['prompt', 'request', 'result'])
   })
 
   it('counts an unknown record kind in the warnings', () => {
-    const { graph } = assemble({ sessionId: 's', main: parseTranscript([prompt, request('r1', 1), '{"type":"brand-new"}'].join('\n')), helpers: [] })
+    const { graph } = assemble({
+      sessionId: 's',
+      main: parseTranscript([prompt, request('r1', 1), '{"type":"brand-new"}'].join('\n')),
+      helpers: [],
+    })
 
     expect(graph.warnings).toContainEqual({ kind: 'unknown-record', subject: 'brand-new', count: 1 })
   })
@@ -219,7 +266,13 @@ describe('buildDetail', () => {
 
   it('shows an edit as a diff', () => {
     const detail = buildDetail(
-      { kind: 'tool', name: 'mcp__dev-tools__edit_file', input: { path: 'a.ts', old_string: 'one', new_string: 'two\nthree' }, result: null, structured: 'ok' },
+      {
+        kind: 'tool',
+        name: 'mcp__dev-tools__edit_file',
+        input: { path: 'a.ts', old_string: 'one', new_string: 'two\nthree' },
+        result: null,
+        structured: 'ok',
+      },
       new Map(),
     )
 
@@ -227,7 +280,10 @@ describe('buildDetail', () => {
   })
 
   it('cuts a long body to a preview and names where the rest is', () => {
-    const detail = toNodeDetail('n', buildDetail({ kind: 'value', title: 'Prompt', value: 'x'.repeat(50_000) }, new Map()))
+    const detail = toNodeDetail(
+      'n',
+      buildDetail({ kind: 'value', title: 'Prompt', value: 'x'.repeat(50_000) }, new Map()),
+    )
 
     expect(detail.output[0]).toMatchObject({ bodyRef: 'n|out:0', bytes: 50_000 })
     expect(detail.output[0]?.preview).toHaveLength(20_000)

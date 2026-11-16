@@ -32,7 +32,7 @@ describe.each(GRAPH_FIXTURES)('layout of %s', (name) => {
     for (const n of placed.nodes) expect(n.x + n.w).toBeLessThanOrEqual(placed.width)
   })
 
-  it('puts every arrow\'s target to the right of its source', () => {
+  it("puts every arrow's target to the right of its source", () => {
     const placed = layout(graph, 'ordered')
 
     for (const e of placed.edges) expect(e.x2).toBeGreaterThan(e.x1)
@@ -53,7 +53,8 @@ describe.each(GRAPH_FIXTURES)('layout of %s', (name) => {
 
   it('keeps a helper below whoever started it', () => {
     const placed = layout(graph, 'ordered')
-    const bandOf = (agentId: string, run: number): number | undefined => placed.bands.find((b) => b.agentId === agentId && b.run === run)?.index
+    const bandOf = (agentId: string, run: number): number | undefined =>
+      placed.bands.find((b) => b.agentId === agentId && b.run === run)?.index
 
     for (const agent of graph.agents) {
       agent.runs.forEach((run, k) => {
@@ -78,7 +79,8 @@ describe('layout, columns', () => {
     const rank = rankNodes(graph)
     const asked = new Map<string, string[]>()
     for (const e of graph.edges) {
-      if (e.kind === 'flow' && e.direction === 'in' && e.from.startsWith('req:') && e.to.startsWith('tool:')) asked.set(e.from, [...(asked.get(e.from) ?? []), e.to])
+      if (e.kind === 'flow' && e.direction === 'in' && e.from.startsWith('req:') && e.to.startsWith('tool:'))
+        asked.set(e.from, [...(asked.get(e.from) ?? []), e.to])
     }
     const several = [...asked.values()].filter((tools) => tools.length > 1)
 
@@ -134,22 +136,88 @@ describe('layout, columns', () => {
 describe('layout, rows', () => {
   const usage = { input: 0, output: 0, cacheRead: 0, cacheWrite5m: 0, cacheWrite1h: 0 }
   const totals = { usage, costUsd: 0, requests: 0, toolUses: 0, durationMs: 0 }
-  const node = (id: string, kind: GraphNode['kind'], agentId: string, at: number): GraphNode => ({ id, kind, agentId, run: 0, label: id, startedAt: at, endedAt: at + 1, error: false, bytesIn: 0, bytesOut: 0 })
-  const edge = (from: string, to: string, kind: GraphEdge['kind'] = 'flow'): GraphEdge => ({ id: `${from}>${to}`, from, to, kind, direction: 'in', bytes: 1, label: '' })
+  const node = (id: string, kind: GraphNode['kind'], agentId: string, at: number): GraphNode => ({
+    id,
+    kind,
+    agentId,
+    run: 0,
+    label: id,
+    startedAt: at,
+    endedAt: at + 1,
+    error: false,
+    bytesIn: 0,
+    bytesOut: 0,
+  })
+  const edge = (from: string, to: string, kind: GraphEdge['kind'] = 'flow'): GraphEdge => ({
+    id: `${from}>${to}`,
+    from,
+    to,
+    kind,
+    direction: 'in',
+    bytes: 1,
+    label: '',
+  })
 
   /** A trunk that runs `count` helpers one after another, each joining before the next starts. */
   function sequential(count: number): SessionGraph {
     const nodes: GraphNode[] = [node('req:0', 'request', 'main', 0)]
     const edges: GraphEdge[] = []
-    const agents: Agent[] = [{ id: 'main', parentId: null, type: 'main', description: '', depth: 0, background: false, finished: true, runs: [], totals }]
+    const agents: Agent[] = [
+      {
+        id: 'main',
+        parentId: null,
+        type: 'main',
+        description: '',
+        depth: 0,
+        background: false,
+        finished: true,
+        runs: [],
+        totals,
+      },
+    ]
     for (let i = 0; i < count; i++) {
       const t = 10 + i * 100
       const id = `h${i}`
-      nodes.push(node(`tool:${i}`, 'tool', 'main', t), node(`agent:${id}:0`, 'agent', id, t + 1), node(`req:${id}`, 'request', id, t + 2), node(`req:${i + 1}`, 'request', 'main', t + 50))
-      edges.push(edge(`req:${i}`, `tool:${i}`), edge(`tool:${i}`, `agent:${id}:0`, 'spawn'), edge(`agent:${id}:0`, `req:${id}`), edge(`tool:${i}`, `req:${i + 1}`), edge(`req:${id}`, `req:${i + 1}`, 'join'))
-      agents.push({ id, parentId: 'main', type: 'coder', description: '', depth: 1, background: false, finished: true, runs: [{ spawnNodeId: `tool:${i}`, headNodeId: `agent:${id}:0`, joinNodeId: `req:${i + 1}` }], totals })
+      nodes.push(
+        node(`tool:${i}`, 'tool', 'main', t),
+        node(`agent:${id}:0`, 'agent', id, t + 1),
+        node(`req:${id}`, 'request', id, t + 2),
+        node(`req:${i + 1}`, 'request', 'main', t + 50),
+      )
+      edges.push(
+        edge(`req:${i}`, `tool:${i}`),
+        edge(`tool:${i}`, `agent:${id}:0`, 'spawn'),
+        edge(`agent:${id}:0`, `req:${id}`),
+        edge(`tool:${i}`, `req:${i + 1}`),
+        edge(`req:${id}`, `req:${i + 1}`, 'join'),
+      )
+      agents.push({
+        id,
+        parentId: 'main',
+        type: 'coder',
+        description: '',
+        depth: 1,
+        background: false,
+        finished: true,
+        runs: [{ spawnNodeId: `tool:${i}`, headNodeId: `agent:${id}:0`, joinNodeId: `req:${i + 1}` }],
+        totals,
+      })
     }
-    return { sessionId: 's', title: null, startedAt: 0, endedAt: 10 + count * 100, agents, nodes, edges, skills: [], totals, byModel: [], claudeCodeTotals: null, claudeCodeByModel: [], warnings: [] }
+    return {
+      sessionId: 's',
+      title: null,
+      startedAt: 0,
+      endedAt: 10 + count * 100,
+      agents,
+      nodes,
+      edges,
+      skills: [],
+      totals,
+      byModel: [],
+      claudeCodeTotals: null,
+      claudeCodeByModel: [],
+      warnings: [],
+    }
   }
 
   it('reuses a row once its branch has joined back', () => {
@@ -168,16 +236,24 @@ describe('layout, rows', () => {
     edgeToMove.to = 'req:2'
     const placed = layout(graph, 'ordered')
 
-    expect(placed.bands.filter((b) => b.agentId !== 'main').map((b) => b.index).sort()).toEqual([1, 2])
+    expect(
+      placed.bands
+        .filter((b) => b.agentId !== 'main')
+        .map((b) => b.index)
+        .sort(),
+    ).toEqual([1, 2])
   })
 
   it('stacks context a few to a column, so the trunk stays close to its helpers', () => {
     const graph = loadGraph('nested')
     const placed = layout(graph, 'ordered')
     const perColumn = new Map<number, number>()
-    for (const n of placed.nodes) if (n.node.agentId === 'main' && n.node.kind === 'context') perColumn.set(n.x, (perColumn.get(n.x) ?? 0) + 1)
+    for (const n of placed.nodes)
+      if (n.node.agentId === 'main' && n.node.kind === 'context') perColumn.set(n.x, (perColumn.get(n.x) ?? 0) + 1)
 
-    expect(graph.nodes.filter((n) => n.agentId === 'main' && n.kind === 'context').length).toBeGreaterThan(SPACING.contextStack)
+    expect(graph.nodes.filter((n) => n.agentId === 'main' && n.kind === 'context').length).toBeGreaterThan(
+      SPACING.contextStack,
+    )
     expect(Math.max(...perColumn.values())).toBeLessThanOrEqual(SPACING.contextStack)
   })
 
@@ -193,7 +269,9 @@ describe('layout, rows', () => {
   it('gives each step a width that matches how long it took, in to-scale mode', () => {
     const graph = loadGraph('plain')
     const placed = layout(graph, 'scale')
-    const requests = placed.nodes.filter((n) => n.node.kind === 'request').sort((a, b) => b.node.endedAt - b.node.startedAt - (a.node.endedAt - a.node.startedAt))
+    const requests = placed.nodes
+      .filter((n) => n.node.kind === 'request')
+      .sort((a, b) => b.node.endedAt - b.node.startedAt - (a.node.endedAt - a.node.startedAt))
     const longest = requests[0] as Placed
     const shortest = requests[requests.length - 1] as Placed
 

@@ -89,7 +89,9 @@ function readParent(records: readonly TranscriptRecord[]): ParentFacts {
       const results = Array.isArray(content) ? content.filter(isToolResult) : []
       const structured = isObject(r.toolUseResult) ? r.toolUseResult : {}
       for (const b of results) {
-        facts.results.set(b.tool_use_id, { async: structured.isAsync === true || structured.status === 'async_launched' })
+        facts.results.set(b.tool_use_id, {
+          async: structured.isAsync === true || structured.status === 'async_launched',
+        })
         if (sendMessages.has(b.tool_use_id) && typeof structured.resumedAgentId === 'string') {
           push(facts.resumes, structured.resumedAgentId, b.tool_use_id)
         }

@@ -26,7 +26,12 @@ interface Hover {
   text: string
 }
 
-const KEY_DIRECTION: Readonly<Record<string, Direction>> = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' }
+const KEY_DIRECTION: Readonly<Record<string, Direction>> = {
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+}
 
 /** Which node an arrow's data belongs to: a request's ask is the tool's input; anything else is its source's output. */
 function nodeOfEdge(edge: EdgePath, layout: Layout): string {
@@ -92,7 +97,11 @@ export function Chart({ graph, mode, onModeChange, selectedId, onSelect, onOpen 
     }
     const frame = requestAnimationFrame(() => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      draw(ctx, layout, view, size.width, size.height, { selectedId, hoverId: hoverIds.current.node, hoverEdgeId: hoverIds.current.edge })
+      draw(ctx, layout, view, size.width, size.height, {
+        selectedId,
+        hoverId: hoverIds.current.node,
+        hoverEdgeId: hoverIds.current.edge,
+      })
     })
     return () => cancelAnimationFrame(frame)
   }, [layout, view, size, selectedId, hover])
@@ -104,7 +113,9 @@ export function Chart({ graph, mode, onModeChange, selectedId, onSelect, onOpen 
     const onWheel = (event: WheelEvent): void => {
       event.preventDefault()
       const rect = el.getBoundingClientRect()
-      setView((v) => zoomAbout(v, event.clientX - rect.left, event.clientY - rect.top, Math.exp(-event.deltaY * 0.0015)))
+      setView((v) =>
+        zoomAbout(v, event.clientX - rect.left, event.clientY - rect.top, Math.exp(-event.deltaY * 0.0015)),
+      )
     }
     el.addEventListener('wheel', onWheel, { passive: false })
     return () => el.removeEventListener('wheel', onWheel)
@@ -129,8 +140,14 @@ export function Chart({ graph, mode, onModeChange, selectedId, onSelect, onOpen 
   const reveal = (n: Placed): void => {
     const sx = n.x * view.scale + view.tx
     const sy = n.y * view.scale + view.ty
-    const inside = sx >= 20 && sy >= 20 && sx + n.w * view.scale <= size.width - 20 && sy + n.h * view.scale <= size.height - 20
-    if (!inside) setView({ ...view, tx: size.width / 2 - (n.x + n.w / 2) * view.scale, ty: size.height / 2 - (n.y + n.h / 2) * view.scale })
+    const inside =
+      sx >= 20 && sy >= 20 && sx + n.w * view.scale <= size.width - 20 && sy + n.h * view.scale <= size.height - 20
+    if (!inside)
+      setView({
+        ...view,
+        tx: size.width / 2 - (n.x + n.w / 2) * view.scale,
+        ty: size.height / 2 - (n.y + n.h / 2) * view.scale,
+      })
   }
 
   const selected = selectedId === null ? undefined : layout.byId.get(selectedId)
@@ -142,7 +159,11 @@ export function Chart({ graph, mode, onModeChange, selectedId, onSelect, onOpen 
         role="application"
         tabIndex={0}
         aria-label="Process chart. Arrow keys move between steps, Enter opens the details."
-        style={{ width: size.width, height: size.height, cursor: areaTool ? 'crosshair' : hoverIds.current.node || hoverIds.current.edge ? 'pointer' : 'grab' }}
+        style={{
+          width: size.width,
+          height: size.height,
+          cursor: areaTool ? 'crosshair' : hoverIds.current.node || hoverIds.current.edge ? 'pointer' : 'grab',
+        }}
         className="block outline-none focus-visible:ring-1 focus-visible:ring-primary"
         onPointerDown={(event) => {
           const p = local(event)
@@ -181,7 +202,8 @@ export function Chart({ graph, mode, onModeChange, selectedId, onSelect, onOpen 
             const b = toWorld(view, Math.max(d.x, p.x), Math.max(d.y, p.y))
             setBox(null)
             setAreaTool(false)
-            if (b.x - a.x > 4) setView(fitRect({ x: a.x, y: a.y, w: b.x - a.x, h: b.y - a.y }, size.width, size.height, 8))
+            if (b.x - a.x > 4)
+              setView(fitRect({ x: a.x, y: a.y, w: b.x - a.x, h: b.y - a.y }, size.width, size.height, 8))
             return
           }
           if (d.moved) return
@@ -214,7 +236,14 @@ export function Chart({ graph, mode, onModeChange, selectedId, onSelect, onOpen 
             const sx = selected ? (selected.x + selected.w / 2) * view.scale + view.tx : size.width / 2
             const sy = selected ? (selected.y + selected.h / 2) * view.scale + view.ty : size.height / 2
             const onScreen = sx >= 0 && sx <= size.width && sy >= 0 && sy <= size.height
-            setView((v) => zoomAbout(v, onScreen ? sx : size.width / 2, onScreen ? sy : size.height / 2, event.key === '-' ? 0.8 : 1.25))
+            setView((v) =>
+              zoomAbout(
+                v,
+                onScreen ? sx : size.width / 2,
+                onScreen ? sy : size.height / 2,
+                event.key === '-' ? 0.8 : 1.25,
+              ),
+            )
           }
         }}
       />
@@ -222,7 +251,12 @@ export function Chart({ graph, mode, onModeChange, selectedId, onSelect, onOpen 
       {box && (
         <div
           className="pointer-events-none absolute border border-primary bg-primary/10"
-          style={{ left: Math.min(box.x0, box.x1), top: Math.min(box.y0, box.y1), width: Math.abs(box.x1 - box.x0), height: Math.abs(box.y1 - box.y0) }}
+          style={{
+            left: Math.min(box.x0, box.x1),
+            top: Math.min(box.y0, box.y1),
+            width: Math.abs(box.x1 - box.x0),
+            height: Math.abs(box.y1 - box.y0),
+          }}
         />
       )}
       {hover && !drag.current && (
@@ -235,7 +269,12 @@ export function Chart({ graph, mode, onModeChange, selectedId, onSelect, onOpen 
       )}
 
       <div className="absolute left-3 top-3 flex items-center gap-1 rounded border border-line-control bg-surface-raised p-1 text-xs shadow">
-        <button type="button" onClick={fitAll} title="Fit all (0)" className="flex items-center gap-1 rounded px-2 py-1 hover:bg-surface-overlay">
+        <button
+          type="button"
+          onClick={fitAll}
+          title="Fit all (0)"
+          className="flex items-center gap-1 rounded px-2 py-1 hover:bg-surface-overlay"
+        >
           <Maximize2 aria-hidden className="size-3.5" /> Fit all
         </button>
         <button
@@ -256,7 +295,9 @@ export function Chart({ graph, mode, onModeChange, selectedId, onSelect, onOpen 
         >
           <Ruler aria-hidden className="size-3.5" /> To scale
         </button>
-        <span className="px-2 text-muted">{view.scale >= 0.1 ? Math.round(view.scale * 100) : (view.scale * 100).toFixed(1)}%</span>
+        <span className="px-2 text-muted">
+          {view.scale >= 0.1 ? Math.round(view.scale * 100) : (view.scale * 100).toFixed(1)}%
+        </span>
       </div>
 
       <Legend />
@@ -265,7 +306,9 @@ export function Chart({ graph, mode, onModeChange, selectedId, onSelect, onOpen 
           layout={layout}
           view={view}
           viewport={size}
-          onJump={(x, y) => setView((v) => ({ ...v, tx: size.width / 2 - x * v.scale, ty: size.height / 2 - y * v.scale }))}
+          onJump={(x, y) =>
+            setView((v) => ({ ...v, tx: size.width / 2 - x * v.scale, ty: size.height / 2 - y * v.scale }))
+          }
         />
       )}
       <div role="status" aria-live="polite" className="sr-only">
@@ -282,7 +325,11 @@ function Legend(): React.JSX.Element {
       <ul className="flex flex-col gap-1 px-2 pb-2">
         {Object.values(NODE_STYLE).map((style) => (
           <li key={style.name} className="flex items-center gap-2">
-            <span aria-hidden className="inline-flex size-4 items-center justify-center rounded-sm border text-[10px]" style={{ background: style.fill, borderColor: style.line, color: style.line }}>
+            <span
+              aria-hidden
+              className="inline-flex size-4 items-center justify-center rounded-sm border text-[10px]"
+              style={{ background: style.fill, borderColor: style.line, color: style.line }}
+            >
               {style.icon}
             </span>
             {style.name}

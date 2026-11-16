@@ -19,14 +19,14 @@ Claude Code writes a full record of every session to disk as JSONL. Those files 
 
 ### Screens
 
-| Screen | What's on it |
-|---|---|
-| Sessions | The sessions you've imported, with start time, duration, number of helpers and rough cost |
-| Chart | The process chart, in ordered mode or to-scale (time) mode, with a minimap |
+| Screen        | What's on it                                                                                         |
+| ------------- | ---------------------------------------------------------------------------------------------------- |
+| Sessions      | The sessions you've imported, with start time, duration, number of helpers and rough cost            |
+| Chart         | The process chart, in ordered mode or to-scale (time) mode, with a minimap                           |
 | Details panel | Everything known about the selected node: request body, reply, tool input and output, timing, tokens |
-| Requests | Every API request in the session as a list |
-| Tokens & cost | Token and cost breakdowns by agent, model and token kind |
-| Files | Every file the session read or changed, with diffs |
+| Requests      | Every API request in the session as a list                                                           |
+| Tokens & cost | Token and cost breakdowns by agent, model and token kind                                             |
+| Files         | Every file the session read or changed, with diffs                                                   |
 
 ## Requirements
 
@@ -93,14 +93,14 @@ src/
 
 ### Scripts
 
-| Script | What it does |
-|---|---|
-| `npm run dev` | Starts the dev server and launches Electron with hot reload |
-| `npm test` | Runs the Vitest suites |
-| `npm run typecheck` | Type-checks the node and web projects |
-| `npm run lint` | Runs ESLint with zero warnings allowed |
-| `npm run build` | Typecheck, then a production build into `out/` |
-| `npm run package` | Builds, then makes the Windows installer in `dist/` |
+| Script              | What it does                                                |
+| ------------------- | ----------------------------------------------------------- |
+| `npm run dev`       | Starts the dev server and launches Electron with hot reload |
+| `npm test`          | Runs the Vitest suites                                      |
+| `npm run typecheck` | Type-checks the node and web projects                       |
+| `npm run lint`      | Runs ESLint with zero warnings allowed                      |
+| `npm run build`     | Typecheck, then a production build into `out/`              |
+| `npm run package`   | Builds, then makes the Windows installer in `dist/`         |
 
 ### Adding a section
 

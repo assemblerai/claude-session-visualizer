@@ -8,7 +8,10 @@ describe('settings', () => {
     const settings = createSettings('/userData/settings.json', disk, async () => ['/home/me/.claude/projects'])
 
     await expect(settings.getRoots()).resolves.toEqual(['/home/me/.claude/projects'])
-    expect(JSON.parse(disk.files.get('/userData/settings.json') ?? '{}')).toEqual({ roots: ['/home/me/.claude/projects'], imported: [] })
+    expect(JSON.parse(disk.files.get('/userData/settings.json') ?? '{}')).toEqual({
+      roots: ['/home/me/.claude/projects'],
+      imported: [],
+    })
   })
 
   it('reads saved roots without detecting again', async () => {
@@ -26,7 +29,11 @@ describe('settings', () => {
     const settings = createSettings('/userData/settings.json', disk, async () => [])
 
     await settings.addImported(['/p/a.jsonl', ' /p/b.jsonl '])
-    await expect(settings.addImported(['/p/c.jsonl', '/p/a.jsonl'])).resolves.toEqual(['/p/c.jsonl', '/p/a.jsonl', '/p/b.jsonl'])
+    await expect(settings.addImported(['/p/c.jsonl', '/p/a.jsonl'])).resolves.toEqual([
+      '/p/c.jsonl',
+      '/p/a.jsonl',
+      '/p/b.jsonl',
+    ])
     await expect(settings.removeImported('/p/a.jsonl')).resolves.toEqual(['/p/c.jsonl', '/p/b.jsonl'])
 
     const relaunched = createSettings('/userData/settings.json', disk, async () => [])

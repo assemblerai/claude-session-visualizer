@@ -1,4 +1,12 @@
-import { addUsage, agentName, ZERO_USAGE, type FileTouch, type GraphNode, type SessionGraph, type Usage } from '@shared/session'
+import {
+  addUsage,
+  agentName,
+  ZERO_USAGE,
+  type FileTouch,
+  type GraphNode,
+  type SessionGraph,
+  type Usage,
+} from '@shared/session'
 
 /** The Tokens & cost and Files screens' sums, worked out from the graph. Pure. */
 
@@ -10,7 +18,10 @@ export interface UsageRow {
   costUsd: number | null
 }
 
-function sumRequests(nodes: readonly GraphNode[], keyOf: (node: GraphNode) => { key: string; label: string }): UsageRow[] {
+function sumRequests(
+  nodes: readonly GraphNode[],
+  keyOf: (node: GraphNode) => { key: string; label: string },
+): UsageRow[] {
   const rows = new Map<string, UsageRow>()
   for (const node of nodes) {
     if (!node.request?.hasReply) continue
@@ -47,7 +58,14 @@ export function byTool(graph: SessionGraph): ToolRow[] {
   const rows = new Map<string, ToolRow>()
   for (const node of graph.nodes) {
     if (!node.tool) continue
-    const row = rows.get(node.tool.name) ?? { name: node.tool.name, uses: 0, errors: 0, bytesIn: 0, bytesOut: 0, durationMs: 0 }
+    const row = rows.get(node.tool.name) ?? {
+      name: node.tool.name,
+      uses: 0,
+      errors: 0,
+      bytesIn: 0,
+      bytesOut: 0,
+      durationMs: 0,
+    }
     row.uses += 1
     row.errors += node.error ? 1 : 0
     row.bytesIn += node.bytesIn
@@ -71,12 +89,19 @@ export function byFile(graph: SessionGraph): FileRow[] {
   for (const node of graph.nodes) {
     const file = node.tool?.file
     if (!file) continue
-    const row = rows.get(file.path) ?? { path: file.path, counts: { read: 0, write: 0, edit: 0, delete: 0 }, agentIds: [], touches: [] }
+    const row = rows.get(file.path) ?? {
+      path: file.path,
+      counts: { read: 0, write: 0, edit: 0, delete: 0 },
+      agentIds: [],
+      touches: [],
+    }
     row.counts[file.action] += 1
     if (!row.agentIds.includes(node.agentId)) row.agentIds.push(node.agentId)
     row.touches.push(node)
     rows.set(file.path, row)
   }
   const changes = (r: FileRow): number => r.counts.write + r.counts.edit + r.counts.delete
-  return [...rows.values()].sort((a, b) => changes(b) - changes(a) || b.touches.length - a.touches.length || a.path.localeCompare(b.path))
+  return [...rows.values()].sort(
+    (a, b) => changes(b) - changes(a) || b.touches.length - a.touches.length || a.path.localeCompare(b.path),
+  )
 }

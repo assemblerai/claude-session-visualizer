@@ -21,16 +21,48 @@ const session: SessionSummary = {
   costUsd: 0.66,
   hasRequests: true,
 }
-const old: SessionSummary = { ...session, sessionId: 'old', path: '/root/-home-me-app/old.jsonl', title: 'An old one', hasRequests: false }
+const old: SessionSummary = {
+  ...session,
+  sessionId: 'old',
+  path: '/root/-home-me-app/old.jsonl',
+  title: 'An old one',
+  hasRequests: false,
+}
 const importSessions = vi.fn()
 const remove = vi.fn()
 const detail: NodeDetail = {
   nodeId: '',
   input: [
-    { title: 'System prompt', role: 'system', repeated: true, format: 'text', preview: 'You are…', bytes: 8, bodyRef: null },
-    { title: 'Message 3 · user', role: 'user', repeated: false, format: 'text', preview: 'the new part', bytes: 12, bodyRef: null },
+    {
+      title: 'System prompt',
+      role: 'system',
+      repeated: true,
+      format: 'text',
+      preview: 'You are…',
+      bytes: 8,
+      bodyRef: null,
+    },
+    {
+      title: 'Message 3 · user',
+      role: 'user',
+      repeated: false,
+      format: 'text',
+      preview: 'the new part',
+      bytes: 12,
+      bodyRef: null,
+    },
   ],
-  output: [{ title: 'Text', role: 'assistant', repeated: false, format: 'text', preview: 'the reply', bytes: 9, bodyRef: null }],
+  output: [
+    {
+      title: 'Text',
+      role: 'assistant',
+      repeated: false,
+      format: 'text',
+      preview: 'the reply',
+      bytes: 9,
+      bodyRef: null,
+    },
+  ],
 }
 
 vi.mock('./hooks/useAppInfo', () => ({ useAppInfo: () => ({ version: '1.2.3', connected: true }) }))
@@ -40,7 +72,11 @@ vi.mock('./hooks/useSessions', () => ({
 }))
 vi.mock('./hooks/useSessionGraph', () => ({
   useSessionGraph: (sessionId: string | null) => ({ graph: sessionId ? graph : null, isLoading: false, error: null }),
-  useNodeDetail: (_: string | null, nodeId: string | null) => ({ detail: nodeId ? { ...detail, nodeId } : null, isLoading: false, error: null }),
+  useNodeDetail: (_: string | null, nodeId: string | null) => ({
+    detail: nodeId ? { ...detail, nodeId } : null,
+    isLoading: false,
+    error: null,
+  }),
   useBodyLoader: () => vi.fn(),
 }))
 

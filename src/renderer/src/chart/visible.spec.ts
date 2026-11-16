@@ -24,7 +24,9 @@ describe('attachmentsOf', () => {
     const graph = loadGraph('nested')
     const shownIds = new Set(chartGraph(graph).nodes.map((n) => n.id))
     const hidden = graph.nodes.filter((n) => !shownIds.has(n.id)).map((n) => n.id)
-    const listed = graph.nodes.filter((n) => n.kind === 'request').flatMap((r) => attachmentsOf(graph, r.id).map((n) => n.id))
+    const listed = graph.nodes
+      .filter((n) => n.kind === 'request')
+      .flatMap((r) => attachmentsOf(graph, r.id).map((n) => n.id))
     expect(hidden.length).toBeGreaterThan(0)
     expect(new Set(listed).size).toBe(listed.length)
     for (const id of hidden) expect(listed).toContain(id)

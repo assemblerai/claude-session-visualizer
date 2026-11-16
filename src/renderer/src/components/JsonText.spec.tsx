@@ -16,7 +16,11 @@ describe('asJson', () => {
 describe('JsonText', () => {
   it('colours keys, strings, numbers and literals differently, and keeps the text intact', () => {
     const text = '{\n  "key": "value",\n  "n": -1.5e3,\n  "ok": false\n}'
-    const { container } = render(<pre><JsonText text={text} /></pre>)
+    const { container } = render(
+      <pre>
+        <JsonText text={text} />
+      </pre>,
+    )
     expect(container.textContent).toBe(text)
     expect(screen.getByText('"key"')).toHaveClass('text-info')
     expect(screen.getByText('"value"')).toHaveClass('text-success')
@@ -26,7 +30,11 @@ describe('JsonText', () => {
 
   it('keeps a cut-off preview readable', () => {
     const text = '{\n  "a": "unterminated'
-    const { container } = render(<pre><JsonText text={text} /></pre>)
+    const { container } = render(
+      <pre>
+        <JsonText text={text} />
+      </pre>,
+    )
     expect(container.textContent).toBe(text)
   })
 })

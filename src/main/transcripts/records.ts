@@ -267,8 +267,10 @@ export function parseTranscript(text: string): ParsedTranscript {
     if (line.trim() === '') continue
     const parsed = parseLine(line)
     if (parsed.outcome === 'record') records.push(parsed.record)
-    else if (parsed.outcome === 'ignored') counts.ignoredKinds[parsed.kind] = (counts.ignoredKinds[parsed.kind] ?? 0) + 1
-    else if (parsed.outcome === 'unknown') counts.unknownKinds[parsed.kind] = (counts.unknownKinds[parsed.kind] ?? 0) + 1
+    else if (parsed.outcome === 'ignored')
+      counts.ignoredKinds[parsed.kind] = (counts.ignoredKinds[parsed.kind] ?? 0) + 1
+    else if (parsed.outcome === 'unknown')
+      counts.unknownKinds[parsed.kind] = (counts.unknownKinds[parsed.kind] ?? 0) + 1
     else counts.invalidLines += 1
   }
   return { records, counts }

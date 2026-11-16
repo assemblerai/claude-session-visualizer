@@ -14,7 +14,11 @@ export function FilesView({ graph, selectedId, onSelect }: FilesViewProps): Reac
   const agents = new Map(graph.agents.map((a) => [a.id, a.id === 'main' ? 'main' : a.type]))
 
   if (rows.length === 0) {
-    return <p className="p-6 text-sm text-muted">No file reads or changes were recognised in this session. File tools from other add-on servers are not read yet.</p>
+    return (
+      <p className="p-6 text-sm text-muted">
+        No file reads or changes were recognised in this session. File tools from other add-on servers are not read yet.
+      </p>
+    )
   }
 
   return (
@@ -26,14 +30,20 @@ export function FilesView({ graph, selectedId, onSelect }: FilesViewProps): Reac
             <li key={row.path}>
               <details className="rounded border border-line">
                 <summary className="flex items-center gap-3 px-3 py-1.5 text-sm">
-                  <span className="min-w-0 flex-1 truncate font-mono text-xs [direction:rtl] text-left" title={row.path}>
+                  <span
+                    className="min-w-0 flex-1 truncate font-mono text-xs [direction:rtl] text-left"
+                    title={row.path}
+                  >
                     <bdi>{row.path}</bdi>
                   </span>
                   <span className="shrink-0 text-xs text-muted">
                     {row.counts.read > 0 && `read ${row.counts.read}× `}
                     {changed > 0 && <span className="text-warning">changed {changed}× </span>}
                   </span>
-                  <span className="max-w-[35%] shrink-0 truncate text-xs text-subtle" title={`${row.agentIds.length} agents`}>
+                  <span
+                    className="max-w-[35%] shrink-0 truncate text-xs text-subtle"
+                    title={`${row.agentIds.length} agents`}
+                  >
                     {[...new Set(row.agentIds.map((id) => agents.get(id) ?? id))].join(', ')}
                   </span>
                 </summary>
@@ -47,7 +57,9 @@ export function FilesView({ graph, selectedId, onSelect }: FilesViewProps): Reac
                       >
                         <span className="w-20 shrink-0 text-muted">{formatClock(node.startedAt)}</span>
                         <span className="w-14 shrink-0">{node.tool?.file?.action}</span>
-                        <span className="w-40 shrink-0 truncate text-muted">{agents.get(node.agentId) ?? node.agentId}</span>
+                        <span className="w-40 shrink-0 truncate text-muted">
+                          {agents.get(node.agentId) ?? node.agentId}
+                        </span>
                         <span className="min-w-0 flex-1 truncate text-subtle">{node.tool?.name}</span>
                         {node.error && <span className="text-danger">failed</span>}
                       </button>

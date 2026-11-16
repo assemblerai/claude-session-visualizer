@@ -20,7 +20,9 @@ export const sessionsRouter = router({
     return picked.length
   }),
   /** Forgets an imported session. The file itself is never touched. */
-  remove: publicProcedure.input(z.object({ path: z.string().min(1) })).mutation(async ({ ctx, input }): Promise<void> => {
-    await ctx.settings.removeImported(input.path)
-  }),
+  remove: publicProcedure
+    .input(z.object({ path: z.string().min(1) }))
+    .mutation(async ({ ctx, input }): Promise<void> => {
+      await ctx.settings.removeImported(input.path)
+    }),
 })

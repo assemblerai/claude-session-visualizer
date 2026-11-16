@@ -57,13 +57,18 @@ describe('session store', () => {
   })
 
   it('refuses a session with no request records', async () => {
-    const { store } = setup({ [`${PROJECT}/old.jsonl`]: '{"type":"user","uuid":"u","timestamp":"2026-01-01T00:00:00.000Z","message":{"role":"user","content":"hi"}}\n' })
+    const { store } = setup({
+      [`${PROJECT}/old.jsonl`]:
+        '{"type":"user","uuid":"u","timestamp":"2026-01-01T00:00:00.000Z","message":{"role":"user","content":"hi"}}\n',
+    })
 
     await expect(store.graph('old')).rejects.toThrow(/no request records/)
   })
 
   it('extends a session that is still running, reading only what was added', async () => {
-    const lines = loadFixture('plain').main.split('\n').filter((l) => l !== '')
+    const lines = loadFixture('plain')
+      .main.split('\n')
+      .filter((l) => l !== '')
     const cut = lines.findIndex((l, i) => i > 25 && l.includes('"type":"user"'))
     const { disk, store } = setup({ [`${PROJECT}/live.jsonl`]: `${lines.slice(0, cut).join('\n')}\n` })
     const before = await store.graph('live')

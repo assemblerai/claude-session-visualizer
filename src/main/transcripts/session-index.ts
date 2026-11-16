@@ -126,7 +126,11 @@ export function createSessionIndex({ disk, imported, cacheFile, log }: SessionIn
         const summarizer = createSummarizer()
         await disk.forEachLine(file.path, 0, summarizer.line)
         const helpers = await disk.listHelpers(file.path)
-        ;(await loadCache()).set(file.path, { ...summarizer.done(helpers.length), size: file.size, mtimeMs: file.mtimeMs })
+        ;(await loadCache()).set(file.path, {
+          ...summarizer.done(helpers.length),
+          size: file.size,
+          mtimeMs: file.mtimeMs,
+        })
         unsaved += 1
       } catch (error) {
         log.write('warn', `session index: could not read ${file.path}`, error)
@@ -147,7 +151,8 @@ export function createSessionIndex({ disk, imported, cacheFile, log }: SessionIn
         const sessionId = sessionIdOf(path)
         const s = await disk.stat(path)
         const known = rows.get(path)
-        if (s !== null && !(known !== undefined && known.size === s.size && known.mtimeMs === s.mtimeMs)) enqueue({ sessionId, path, ...s })
+        if (s !== null && !(known !== undefined && known.size === s.size && known.mtimeMs === s.mtimeMs))
+          enqueue({ sessionId, path, ...s })
         const row: Row = known ?? EMPTY
         summaries.push({
           sessionId,
@@ -172,9 +177,12 @@ export function createSessionIndex({ disk, imported, cacheFile, log }: SessionIn
     async checkImport(paths) {
       for (const path of paths) {
         const name = baseName(path)
-        if (!name.endsWith('.jsonl')) throw new Refusal(`${name} is not a session file: pick a .jsonl file from a project folder.`)
+        if (!name.endsWith('.jsonl'))
+          throw new Refusal(`${name} is not a session file: pick a .jsonl file from a project folder.`)
         if (name.startsWith('agent-') || parentName(path) === 'subagents') {
-          throw new Refusal(`${name} is a helper's transcript. Import the session's main .jsonl from the project folder instead; its helpers come with it.`)
+          throw new Refusal(
+            `${name} is a helper's transcript. Import the session's main .jsonl from the project folder instead; its helpers come with it.`,
+          )
         }
         if ((await disk.stat(path)) === null) throw new Refusal(`${path} could not be found.`, 'NOT_FOUND')
       }

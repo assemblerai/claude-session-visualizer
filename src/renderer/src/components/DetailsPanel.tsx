@@ -3,7 +3,15 @@ import { X } from 'lucide-react'
 import type { Body, GraphNode, SessionGraph } from '@shared/session'
 import { NODE_STYLE } from '../chart/theme'
 import { attachmentsOf } from '../chart/visible'
-import { formatBytes, formatClock, formatCost, formatCount, formatDateTime, formatDuration, formatTokens } from '../format'
+import {
+  formatBytes,
+  formatClock,
+  formatCost,
+  formatCount,
+  formatDateTime,
+  formatDuration,
+  formatTokens,
+} from '../format'
 import { useBodyLoader, useNodeDetail } from '../hooks/useSessionGraph'
 import { BodyText, BodyView } from './BodyView'
 
@@ -23,15 +31,27 @@ export function DetailsPanel({ graph, selectedId, onSelect, onClose }: DetailsPa
   const node = selectedId === null ? undefined : graph.nodes.find((n) => n.id === selectedId)
 
   return (
-    <aside aria-label="Details" tabIndex={-1} id="details-panel" className="flex w-[26rem] shrink-0 flex-col border-l border-line bg-surface-sunken outline-none">
+    <aside
+      aria-label="Details"
+      tabIndex={-1}
+      id="details-panel"
+      className="flex w-[26rem] shrink-0 flex-col border-l border-line bg-surface-sunken outline-none"
+    >
       <div className="flex items-center gap-2 border-b border-line px-3 py-2">
-        <h2 className="min-w-0 flex-1 truncate text-sm font-medium">{node ? NODE_STYLE[node.kind].name : 'Session summary'}</h2>
+        <h2 className="min-w-0 flex-1 truncate text-sm font-medium">
+          {node ? NODE_STYLE[node.kind].name : 'Session summary'}
+        </h2>
         {node && (
           <button type="button" onClick={() => onSelect(null)} className="text-xs text-muted hover:text-on-surface">
             Summary
           </button>
         )}
-        <button type="button" onClick={onClose} aria-label="Close details" className="rounded p-1 text-muted hover:bg-surface-raised hover:text-on-surface">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close details"
+          className="rounded p-1 text-muted hover:bg-surface-raised hover:text-on-surface"
+        >
           <X aria-hidden className="size-4" />
         </button>
       </div>
@@ -51,7 +71,13 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
   )
 }
 
-function Summary({ graph, onSelect }: { graph: SessionGraph; onSelect: (nodeId: string | null) => void }): React.JSX.Element {
+function Summary({
+  graph,
+  onSelect,
+}: {
+  graph: SessionGraph
+  onSelect: (nodeId: string | null) => void
+}): React.JSX.Element {
   const first = graph.nodes.find((n) => n.kind === 'prompt')
   const results = graph.nodes.filter((n) => n.kind === 'result')
   const last = results[results.length - 1]
@@ -59,7 +85,11 @@ function Summary({ graph, onSelect }: { graph: SessionGraph; onSelect: (nodeId: 
     <div className="mt-3">
       <h3 className="mb-1 text-xs text-muted">{label}</h3>
       {node ? (
-        <button type="button" onClick={() => onSelect(node.id)} className="w-full rounded border border-line bg-surface p-2 text-left text-xs hover:border-line-strong">
+        <button
+          type="button"
+          onClick={() => onSelect(node.id)}
+          className="w-full rounded border border-line bg-surface p-2 text-left text-xs hover:border-line-strong"
+        >
           {node.label}
         </button>
       ) : (
@@ -79,7 +109,9 @@ function Summary({ graph, onSelect }: { graph: SessionGraph; onSelect: (nodeId: 
         <Fact label="Tool uses">{graph.totals.toolUses}</Fact>
         <Fact label="Tokens">{formatTokens(graph.totals.usage)}</Fact>
         <Fact label="Estimated cost">{formatCost(graph.totals.costUsd)}</Fact>
-        {graph.claudeCodeTotals && <Fact label="Claude Code's own figure">{formatCost(graph.claudeCodeTotals.costUsd)}</Fact>}
+        {graph.claudeCodeTotals && (
+          <Fact label="Claude Code's own figure">{formatCost(graph.claudeCodeTotals.costUsd)}</Fact>
+        )}
       </dl>
       {link('Started from', first)}
       {link('Ended with', last)}
@@ -99,7 +131,17 @@ function Summary({ graph, onSelect }: { graph: SessionGraph; onSelect: (nodeId: 
   )
 }
 
-function Bodies({ title, bodies, sessionId, empty }: { title: string; bodies: Body[]; sessionId: string; empty: string }): React.JSX.Element {
+function Bodies({
+  title,
+  bodies,
+  sessionId,
+  empty,
+}: {
+  title: string
+  bodies: Body[]
+  sessionId: string
+  empty: string
+}): React.JSX.Element {
   const loadMore = useBodyLoader(sessionId)
   const fresh = bodies.filter((b) => !b.repeated)
   const repeated = bodies.filter((b) => b.repeated)
@@ -134,9 +176,18 @@ function AttachmentContent({ sessionId, nodeId }: { sessionId: string; nodeId: s
   const { detail, isLoading, error } = useNodeDetail(sessionId, nodeId)
   const loadMore = useBodyLoader(sessionId)
   if (isLoading) return <p className="border-t border-line p-2 text-xs text-muted">Loading…</p>
-  if (error) return <p role="alert" className="border-t border-line p-2 text-xs text-danger">{error}</p>
+  if (error)
+    return (
+      <p role="alert" className="border-t border-line p-2 text-xs text-danger">
+        {error}
+      </p>
+    )
   const body = detail?.output[0]
-  return body ? <BodyText body={body} loadMore={loadMore} /> : <p className="border-t border-line p-2 text-xs text-subtle">(empty)</p>
+  return body ? (
+    <BodyText body={body} loadMore={loadMore} />
+  ) : (
+    <p className="border-t border-line p-2 text-xs text-subtle">(empty)</p>
+  )
 }
 
 function AttachmentItem({ sessionId, node }: { sessionId: string; node: GraphNode }): React.JSX.Element {
@@ -178,7 +229,13 @@ function NodeDetails({ graph, node }: { graph: SessionGraph; node: GraphNode }):
     <>
       <p className="mb-2 break-words text-sm">{node.label}</p>
       <dl>
-        <Fact label="Agent">{agent ? (agent.id === 'main' ? 'main' : `${agent.type}${node.run > 0 ? ` (run ${node.run + 1})` : ''}`) : node.agentId}</Fact>
+        <Fact label="Agent">
+          {agent
+            ? agent.id === 'main'
+              ? 'main'
+              : `${agent.type}${node.run > 0 ? ` (run ${node.run + 1})` : ''}`
+            : node.agentId}
+        </Fact>
         <Fact label="Started">{formatClock(node.startedAt)}</Fact>
         <Fact label="Took">{formatDuration(node.endedAt - node.startedAt)}</Fact>
         {node.request && (
@@ -199,7 +256,11 @@ function NodeDetails({ graph, node }: { graph: SessionGraph; node: GraphNode }):
             )}
           </>
         )}
-        {node.tool && <Fact label="Tool">{node.tool.server ? `${node.tool.name} (server ${node.tool.server})` : node.tool.name}</Fact>}
+        {node.tool && (
+          <Fact label="Tool">
+            {node.tool.server ? `${node.tool.name} (server ${node.tool.server})` : node.tool.name}
+          </Fact>
+        )}
         {node.tool?.file && <Fact label={`File ${node.tool.file.action}`}>{node.tool.file.path}</Fact>}
         {node.skill && <Fact label="Skill">{node.skill}</Fact>}
         {node.kind === 'agent' && agent && (
@@ -209,21 +270,41 @@ function NodeDetails({ graph, node }: { graph: SessionGraph; node: GraphNode }):
             <Fact label="Tool uses">{agent.totals.toolUses}</Fact>
             <Fact label="Tokens">{formatTokens(agent.totals.usage)}</Fact>
             <Fact label="Estimated cost">{formatCost(agent.totals.costUsd)}</Fact>
-            <Fact label="Helpers started">{helpersStarted.length === 0 ? 'none' : helpersStarted.map((a) => a.type).join(', ')}</Fact>
+            <Fact label="Helpers started">
+              {helpersStarted.length === 0 ? 'none' : helpersStarted.map((a) => a.type).join(', ')}
+            </Fact>
             <Fact label="Ran in the background">{agent.background ? 'yes' : 'no'}</Fact>
             {!agent.finished && <Fact label="Finished">no</Fact>}
           </>
         )}
-        {node.error && <Fact label="Outcome"><span className="text-danger">failed</span></Fact>}
+        {node.error && (
+          <Fact label="Outcome">
+            <span className="text-danger">failed</span>
+          </Fact>
+        )}
       </dl>
 
       {node.kind === 'request' && <Attachments graph={graph} requestId={node.id} />}
       {isLoading && <p className="mt-4 text-xs text-muted">Loading…</p>}
-      {error && <p role="alert" className="mt-4 text-xs text-danger">{error}</p>}
+      {error && (
+        <p role="alert" className="mt-4 text-xs text-danger">
+          {error}
+        </p>
+      )}
       {detail && (
         <>
-          <Bodies title="Input" bodies={detail.input} sessionId={graph.sessionId} empty="Nothing flowed into this step." />
-          <Bodies title="Output" bodies={detail.output} sessionId={graph.sessionId} empty={node.request && !node.request.hasReply ? 'No reply was recorded.' : 'Nothing came out of this step.'} />
+          <Bodies
+            title="Input"
+            bodies={detail.input}
+            sessionId={graph.sessionId}
+            empty="Nothing flowed into this step."
+          />
+          <Bodies
+            title="Output"
+            bodies={detail.output}
+            sessionId={graph.sessionId}
+            empty={node.request && !node.request.hasReply ? 'No reply was recorded.' : 'Nothing came out of this step.'}
+          />
         </>
       )}
     </>

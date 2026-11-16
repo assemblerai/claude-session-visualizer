@@ -31,11 +31,19 @@ function pretty(value: unknown): string {
 /** Text when the content is only text; otherwise the blocks as JSON, so nothing is hidden. */
 function render(content: unknown): Pick<FullBody, 'format' | 'text'> {
   if (typeof content === 'string') return { format: 'text', text: content }
-  if (Array.isArray(content) && content.length > 0 && content.every((b) => isObject(b) && b.type === 'text' && typeof b.text === 'string')) {
+  if (
+    Array.isArray(content) &&
+    content.length > 0 &&
+    content.every((b) => isObject(b) && b.type === 'text' && typeof b.text === 'string')
+  ) {
     return { format: 'text', text: content.map((b) => (b as { text: string }).text).join('\n\n') }
   }
   // An attachment's rendered form: the text blocks Claude Code put into the request.
-  if (Array.isArray(content) && content.length > 0 && content.every((b) => isObject(b) && b.type === undefined && typeof b.content === 'string')) {
+  if (
+    Array.isArray(content) &&
+    content.length > 0 &&
+    content.every((b) => isObject(b) && b.type === undefined && typeof b.content === 'string')
+  ) {
     return { format: 'text', text: content.map((b) => (b as { content: string }).content).join('\n\n') }
   }
   if (content === null || content === undefined) return { format: 'text', text: '' }
@@ -64,7 +72,12 @@ function requestDetail(source: Extract<NodeSource, { kind: 'request' }>, index: 
       const message = index.resolve(hash)
       const repeated = i < kept
       if (!message) {
-        input.push({ title: `Message ${i + 1} · content not recorded`, repeated, format: 'text', text: `fingerprint ${hash}` })
+        input.push({
+          title: `Message ${i + 1} · content not recorded`,
+          repeated,
+          format: 'text',
+          text: `fingerprint ${hash}`,
+        })
         return
       }
       const role = roleOf(message.role)
@@ -74,7 +87,8 @@ function requestDetail(source: Extract<NodeSource, { kind: 'request' }>, index: 
 
   const output: FullBody[] = []
   for (const block of source.reply?.content ?? []) {
-    if (isThinking(block)) output.push(body('Thinking', block.thinking || '(thinking was not recorded)', { role: 'assistant' }))
+    if (isThinking(block))
+      output.push(body('Thinking', block.thinking || '(thinking was not recorded)', { role: 'assistant' }))
     else if (isText(block)) output.push(body('Text', block.text, { role: 'assistant' }))
     else if (isToolUse(block)) output.push(body(`Tool request · ${block.name}`, block.input, { role: 'assistant' }))
     else output.push(body(block.type, block, { role: 'assistant' }))
@@ -112,13 +126,17 @@ function diffOf(input: unknown, structured: unknown): string | null {
 }
 
 function toolDetail(source: Extract<NodeSource, { kind: 'tool' }>): FullDetail {
-  const onlyCommand = isObject(source.input) && Object.keys(source.input).length === 1 && typeof source.input.command === 'string'
-  const input = [onlyCommand ? body('Command', (source.input as { command: string }).command) : body('Input', source.input)]
+  const onlyCommand =
+    isObject(source.input) && Object.keys(source.input).length === 1 && typeof source.input.command === 'string'
+  const input = [
+    onlyCommand ? body('Command', (source.input as { command: string }).command) : body('Input', source.input),
+  ]
 
   const output: FullBody[] = []
   const diff = diffOf(source.input, source.structured)
   if (diff !== null) output.push({ title: 'Change', repeated: false, format: 'diff', text: diff })
-  if (source.result) output.push(body(source.result.is_error === true ? 'Error' : 'Result', source.result.content ?? ''))
+  if (source.result)
+    output.push(body(source.result.is_error === true ? 'Error' : 'Result', source.result.content ?? ''))
   return { input, output }
 }
 

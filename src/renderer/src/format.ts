@@ -37,7 +37,13 @@ export function formatBytes(bytes: number): string {
 
 export function formatDateTime(ms: number | null): string {
   if (ms === null) return '–'
-  return new Date(ms).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return new Date(ms).toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 }
 
 export function formatClock(ms: number): string {

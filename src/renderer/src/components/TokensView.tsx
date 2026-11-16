@@ -18,7 +18,15 @@ const COMPARED: readonly { label: string; of: (u: Usage) => number }[] = [
   { label: 'Cache write (both lifetimes)', of: (u) => u.cacheWrite5m + u.cacheWrite1h },
 ]
 
-function Section({ title, note, children }: { title: string; note?: string; children: React.ReactNode }): React.JSX.Element {
+function Section({
+  title,
+  note,
+  children,
+}: {
+  title: string
+  note?: string
+  children: React.ReactNode
+}): React.JSX.Element {
   return (
     <section className="mb-8">
       <h2 className="text-sm font-medium">{title}</h2>
@@ -140,7 +148,10 @@ export function TokensView({ graph }: { graph: SessionGraph }): React.JSX.Elemen
         <UsageTable first="Skill" rows={bySkill(graph)} />
       </Section>
 
-      <Section title="By tool" note="A tool is not charged for directly. What it costs is the data it sends back, which becomes input to the requests after it.">
+      <Section
+        title="By tool"
+        note="A tool is not charged for directly. What it costs is the data it sends back, which becomes input to the requests after it."
+      >
         <table className="w-full text-sm">
           <thead className="bg-surface-sunken text-left text-xs text-muted">
             <tr>

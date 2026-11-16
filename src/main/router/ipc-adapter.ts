@@ -43,7 +43,11 @@ function resolveRequest(caller: Record<string, unknown>, request: TrpcRequest): 
 
   if (!published) return { ok: false, code: 'NOT_FOUND', message: `no such procedure: ${path}` }
   if (type !== published._def.type) {
-    return { ok: false, code: 'BAD_REQUEST', message: `${path} is a ${published._def.type}, called as a ${String(type)}` }
+    return {
+      ok: false,
+      code: 'BAD_REQUEST',
+      message: `${path} is a ${published._def.type}, called as a ${String(type)}`,
+    }
   }
 
   const call = bindProcedure(caller, path)

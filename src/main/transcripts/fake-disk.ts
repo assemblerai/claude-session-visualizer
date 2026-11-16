@@ -50,7 +50,12 @@ export function createFakeDisk(initial: Record<string, string> = {}): FakeDisk {
         .filter(([name, isDir]) => !isDir && name.endsWith('.jsonl'))
         .map(([name]) => {
           const path = `${projectPath}/${name}`
-          return { sessionId: name.slice(0, -'.jsonl'.length), path, size: size(files.get(path) ?? ''), mtimeMs: mtimes.get(path) ?? 0 }
+          return {
+            sessionId: name.slice(0, -'.jsonl'.length),
+            path,
+            size: size(files.get(path) ?? ''),
+            mtimeMs: mtimes.get(path) ?? 0,
+          }
         })
     },
     async listHelpers(mainPath) {
@@ -91,7 +96,11 @@ export function createFakeDisk(initial: Record<string, string> = {}): FakeDisk {
 }
 
 /** Lays a fixture out on a fake disk the way Claude Code lays out a session. */
-export function fixtureOnDisk(name: FixtureName, projectPath: string, sessionId: string = name): Record<string, string> {
+export function fixtureOnDisk(
+  name: FixtureName,
+  projectPath: string,
+  sessionId: string = name,
+): Record<string, string> {
   const session = loadFixture(name)
   const files: Record<string, string> = { [`${projectPath}/${sessionId}.jsonl`]: session.main }
   for (const [agentId, helper] of Object.entries(session.helpers)) {

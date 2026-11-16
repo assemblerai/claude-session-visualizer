@@ -21,7 +21,9 @@ describe('session index', () => {
   it('lists only the imported sessions, in import order', async () => {
     const { index } = setup(undefined, [PLAIN])
 
-    await expect(index.list()).resolves.toEqual([expect.objectContaining({ sessionId: 'plain', path: PLAIN, project: '-home-me-app', missing: false })])
+    await expect(index.list()).resolves.toEqual([
+      expect.objectContaining({ sessionId: 'plain', path: PLAIN, project: '-home-me-app', missing: false }),
+    ])
   })
 
   it('answers at once with pending rows, then fills them in', async () => {
@@ -70,17 +72,31 @@ describe('session index', () => {
 
   it('marks a session with no request records', async () => {
     const old = `${PROJECT}/old.jsonl`
-    const { index } = setup(createFakeDisk({ [old]: '{"type":"user","uuid":"u","timestamp":"2026-01-01T00:00:00.000Z","message":{"role":"user","content":"hi"}}\n' }), [old])
+    const { index } = setup(
+      createFakeDisk({
+        [old]:
+          '{"type":"user","uuid":"u","timestamp":"2026-01-01T00:00:00.000Z","message":{"role":"user","content":"hi"}}\n',
+      }),
+      [old],
+    )
     await index.list()
     await index.idle()
 
-    expect((await index.list())[0]).toMatchObject({ hasRequests: false, startedAt: Date.parse('2026-01-01T00:00:00.000Z') })
+    expect((await index.list())[0]).toMatchObject({
+      hasRequests: false,
+      startedAt: Date.parse('2026-01-01T00:00:00.000Z'),
+    })
   })
 
   it('keeps an imported session whose file has gone, marked missing', async () => {
     const { index } = setup(undefined, [`${PROJECT}/gone.jsonl`])
 
-    expect((await index.list())[0]).toMatchObject({ sessionId: 'gone', missing: true, pending: false, hasRequests: false })
+    expect((await index.list())[0]).toMatchObject({
+      sessionId: 'gone',
+      missing: true,
+      pending: false,
+      hasRequests: false,
+    })
   })
 
   it('accepts a main session file and refuses anything else', async () => {
@@ -88,7 +104,9 @@ describe('session index', () => {
 
     await expect(index.checkImport([PLAIN])).resolves.toEqual([PLAIN])
     await expect(index.checkImport([`${PROJECT}/notes.txt`])).rejects.toBeInstanceOf(Refusal)
-    await expect(index.checkImport([`${PROJECT}/one-helper/subagents/agent-ab264e6e0b102cad4.jsonl`])).rejects.toBeInstanceOf(Refusal)
+    await expect(
+      index.checkImport([`${PROJECT}/one-helper/subagents/agent-ab264e6e0b102cad4.jsonl`]),
+    ).rejects.toBeInstanceOf(Refusal)
     await expect(index.checkImport([`${PROJECT}/nope.jsonl`])).rejects.toBeInstanceOf(Refusal)
   })
 

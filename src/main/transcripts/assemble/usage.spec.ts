@@ -14,7 +14,12 @@ const part = (uuid: string, output: number, extra: Record<string, unknown> = {})
       role: 'assistant',
       model: 'claude-opus-5-5',
       content: [{ type: 'text', text: uuid }],
-      usage: { input_tokens: 3, output_tokens: output, cache_read_input_tokens: 10, cache_creation: { ephemeral_5m_input_tokens: 4, ephemeral_1h_input_tokens: 5 } },
+      usage: {
+        input_tokens: 3,
+        output_tokens: output,
+        cache_read_input_tokens: 10,
+        cache_creation: { ephemeral_5m_input_tokens: 4, ephemeral_1h_input_tokens: 5 },
+      },
     },
     ...extra,
   })

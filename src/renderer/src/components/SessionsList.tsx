@@ -26,10 +26,18 @@ export function SessionsList({ openSessionId, onOpen }: SessionsListProps): Reac
         </button>
         <span className="text-xs text-muted">Pick a session's .jsonl from a folder under .claude/projects.</span>
       </div>
-      {error && <p role="alert" className="px-4 py-2 text-sm text-danger">{error}</p>}
+      {error && (
+        <p role="alert" className="px-4 py-2 text-sm text-danger">
+          {error}
+        </p>
+      )}
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {sessions.error && <p role="alert" className="p-6 text-sm text-danger">{sessions.error}</p>}
+        {sessions.error && (
+          <p role="alert" className="p-6 text-sm text-danger">
+            {sessions.error}
+          </p>
+        )}
         {sessions.isLoading && <p className="p-6 text-sm text-muted">Listing sessions…</p>}
         {!sessions.isLoading && !sessions.error && sessions.items.length === 0 && (
           <p className="p-6 text-sm text-muted">No sessions imported yet. Use “Import session” to pick one.</p>
@@ -53,10 +61,18 @@ export function SessionsList({ openSessionId, onOpen }: SessionsListProps): Reac
             <tbody>
               {sessions.items.map((session) => {
                 const name = session.title ?? session.sessionId
-                const duration = session.startedAt !== null && session.endedAt !== null ? formatDuration(session.endedAt - session.startedAt) : '–'
-                const why = session.missing ? 'The file is no longer where it was imported from.' : 'This session has no request records, so it cannot be opened.'
+                const duration =
+                  session.startedAt !== null && session.endedAt !== null
+                    ? formatDuration(session.endedAt - session.startedAt)
+                    : '–'
+                const why = session.missing
+                  ? 'The file is no longer where it was imported from.'
+                  : 'This session has no request records, so it cannot be opened.'
                 return (
-                  <tr key={session.path} className={`border-t border-line ${session.sessionId === openSessionId ? 'bg-surface-raised' : ''}`}>
+                  <tr
+                    key={session.path}
+                    className={`border-t border-line ${session.sessionId === openSessionId ? 'bg-surface-raised' : ''}`}
+                  >
                     <td className="w-full max-w-0 px-4 py-2">
                       <button
                         type="button"
@@ -76,11 +92,17 @@ export function SessionsList({ openSessionId, onOpen }: SessionsListProps): Reac
                     <td className="max-w-48 truncate px-3 py-2 text-muted" title={session.project}>
                       {session.project}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-muted">{formatDateTime(session.startedAt ?? session.modifiedAt)}</td>
+                    <td className="whitespace-nowrap px-3 py-2 text-muted">
+                      {formatDateTime(session.startedAt ?? session.modifiedAt)}
+                    </td>
                     <td className="whitespace-nowrap px-3 py-2 text-right text-muted">{duration}</td>
                     <td className="px-3 py-2 text-right text-muted">{session.pending ? '–' : session.helperCount}</td>
-                    <td className="whitespace-nowrap px-3 py-2 text-right text-muted">{session.costUsd === null ? '–' : formatCost(session.costUsd)}</td>
-                    <td className="whitespace-nowrap px-3 py-2 text-right text-muted">{session.missing ? '–' : formatBytes(session.sizeBytes)}</td>
+                    <td className="whitespace-nowrap px-3 py-2 text-right text-muted">
+                      {session.costUsd === null ? '–' : formatCost(session.costUsd)}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2 text-right text-muted">
+                      {session.missing ? '–' : formatBytes(session.sizeBytes)}
+                    </td>
                     <td className="px-2 py-2">
                       <button
                         type="button"

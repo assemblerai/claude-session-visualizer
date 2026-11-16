@@ -22,7 +22,12 @@ export function zoomAbout(view: View, sx: number, sy: number, factor: number): V
 }
 
 /** The view that shows a world rectangle whole and centred, with some padding. */
-export function fitRect(rect: { x: number; y: number; w: number; h: number }, screenW: number, screenH: number, pad = 24): View {
+export function fitRect(
+  rect: { x: number; y: number; w: number; h: number },
+  screenW: number,
+  screenH: number,
+  pad = 24,
+): View {
   const w = Math.max(1, rect.w)
   const h = Math.max(1, rect.h)
   const scale = clampScale(Math.min((screenW - 2 * pad) / w, (screenH - 2 * pad) / h))

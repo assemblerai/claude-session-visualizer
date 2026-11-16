@@ -24,7 +24,10 @@ interface SideNavProps {
 export function SideNav({ section, onSection, hasSession, collapsed, onCollapsed }: SideNavProps): React.JSX.Element {
   const Toggle = collapsed ? PanelLeftOpen : PanelLeftClose
   return (
-    <nav aria-label="Sections" className={`flex shrink-0 flex-col border-r border-line bg-surface-sunken ${collapsed ? 'w-12' : 'w-52'}`}>
+    <nav
+      aria-label="Sections"
+      className={`flex shrink-0 flex-col border-r border-line bg-surface-sunken ${collapsed ? 'w-12' : 'w-52'}`}
+    >
       <ul className="flex flex-1 flex-col gap-0.5 p-2">
         {ENTRIES.map(({ id, label, icon: Icon, needsSession }) => (
           <li key={id}>

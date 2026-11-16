@@ -139,7 +139,8 @@ function horizontal(graph: SessionGraph, mode: LayoutMode): Map<string, { x: num
   if (mode === 'ordered') {
     const rank = rankNodes(graph)
     const step = SPACING.nodeWidth + SPACING.columnGap
-    for (const node of graph.nodes) at.set(node.id, { x: SPACING.margin + (rank.get(node.id) ?? 0) * step, w: SPACING.nodeWidth })
+    for (const node of graph.nodes)
+      at.set(node.id, { x: SPACING.margin + (rank.get(node.id) ?? 0) * step, w: SPACING.nodeWidth })
     return at
   }
   const duration = Math.max(1, graph.endedAt - graph.startedAt)
@@ -171,7 +172,11 @@ interface RunBox {
 }
 
 /** Rows within a band: each node takes the lowest units free at its x. Answers the units used. */
-function pack(nodes: GraphNode[], at: Map<string, { x: number; w: number }>, gap: number): { top: Map<string, number>; units: number } {
+function pack(
+  nodes: GraphNode[],
+  at: Map<string, { x: number; w: number }>,
+  gap: number,
+): { top: Map<string, number>; units: number } {
   const freeFrom: number[] = []
   const top = new Map<string, number>()
   for (const node of nodes) {
@@ -207,7 +212,20 @@ export function layout(graph: SessionGraph, mode: LayoutMode): Layout {
     const key = runKey(node.agentId, node.run)
     let box = runs.get(key)
     if (!box) {
-      box = { agentId: node.agentId, agentIndex: agentIndex.get(node.agentId) ?? 0, run: node.run, parentKey: null, x0: Infinity, x1: -Infinity, left: Infinity, c0: Infinity, c1: -Infinity, nodes: [], joined: true, band: 0 }
+      box = {
+        agentId: node.agentId,
+        agentIndex: agentIndex.get(node.agentId) ?? 0,
+        run: node.run,
+        parentKey: null,
+        x0: Infinity,
+        x1: -Infinity,
+        left: Infinity,
+        c0: Infinity,
+        c1: -Infinity,
+        nodes: [],
+        joined: true,
+        band: 0,
+      }
       runs.set(key, box)
     }
     const pos = at.get(node.id)
@@ -237,8 +255,11 @@ export function layout(graph: SessionGraph, mode: LayoutMode): Layout {
   // the order they start, each in the lowest band below its parent's that is
   // free over its whole length; a resumed helper prefers its first run's band.
   const taken: { x0: number; x1: number }[][] = [[{ x0: -Infinity, x1: Infinity }]]
-  const free = (band: number, box: RunBox): boolean => (taken[band] ?? []).every((t) => box.x1 + SPACING.columnGap <= t.x0 || t.x1 + SPACING.columnGap <= box.x0)
-  const helperRuns = [...runs.values()].filter((b) => b.agentId !== 'main').sort((a, b) => a.x0 - b.x0 || a.agentIndex - b.agentIndex || a.run - b.run)
+  const free = (band: number, box: RunBox): boolean =>
+    (taken[band] ?? []).every((t) => box.x1 + SPACING.columnGap <= t.x0 || t.x1 + SPACING.columnGap <= box.x0)
+  const helperRuns = [...runs.values()]
+    .filter((b) => b.agentId !== 'main')
+    .sort((a, b) => a.x0 - b.x0 || a.agentIndex - b.agentIndex || a.run - b.run)
   for (const box of helperRuns) {
     const parentBand = box.parentKey === null ? 0 : (runs.get(box.parentKey)?.band ?? 0)
     const preferred = box.run > 0 ? runs.get(runKey(box.agentId, 0))?.band : undefined

@@ -67,7 +67,11 @@ interface Saved {
   imported: string[]
 }
 
-export function createSettings(file: string, disk: Disk, detect: () => Promise<string[]> = () => detectRoots(disk)): Settings {
+export function createSettings(
+  file: string,
+  disk: Disk,
+  detect: () => Promise<string[]> = () => detectRoots(disk),
+): Settings {
   let state: Saved | null = null
 
   async function save(next: Saved): Promise<Saved> {
@@ -96,7 +100,8 @@ export function createSettings(file: string, disk: Disk, detect: () => Promise<s
     async addImported(paths) {
       const current = await load()
       const added = cleanPaths(paths) ?? []
-      return (await save({ ...current, imported: [...added, ...current.imported.filter((p) => !added.includes(p))] })).imported
+      return (await save({ ...current, imported: [...added, ...current.imported.filter((p) => !added.includes(p))] }))
+        .imported
     },
     async removeImported(path) {
       const current = await load()

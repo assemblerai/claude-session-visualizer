@@ -45,7 +45,11 @@ body {
   overflow: hidden; /* the app manages its own scroll regions */
   background-color: var(--color-surface);
   color: var(--color-on-surface);
-  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
 }
 
 :root {

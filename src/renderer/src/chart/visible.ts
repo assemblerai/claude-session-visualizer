@@ -1,7 +1,8 @@
 import type { GraphNode, SessionGraph } from '@shared/session'
 
 /** Context Claude Code attached on its own: listed in the details panel under its request, not drawn. */
-export const isAttachment = (node: GraphNode): boolean => node.kind === 'context' && node.context?.source === 'attachment'
+export const isAttachment = (node: GraphNode): boolean =>
+  node.kind === 'context' && node.context?.source === 'attachment'
 
 /**
  * The graph as the chart draws it: without attachment nodes and their arrows.

@@ -86,7 +86,8 @@ function shape(ctx: CanvasRenderingContext2D, n: Placed, x: number, y: number, w
 function badgesOf(n: Placed): string {
   const node = n.node
   const parts = [formatDuration(node.endedAt - node.startedAt)]
-  if (node.request?.hasReply) parts.push(`${formatCount(totalTokens(node.request.usage))} tok`, formatCost(node.request.costUsd))
+  if (node.request?.hasReply)
+    parts.push(`${formatCount(totalTokens(node.request.usage))} tok`, formatCost(node.request.costUsd))
   return parts.join(' · ')
 }
 
@@ -186,7 +187,14 @@ function drawEdge(ctx: CanvasRenderingContext2D, e: EdgePath, view: View, hover:
   ctx.fill()
 }
 
-export function draw(ctx: CanvasRenderingContext2D, layout: Layout, view: View, width: number, height: number, opts: DrawOptions = {}): void {
+export function draw(
+  ctx: CanvasRenderingContext2D,
+  layout: Layout,
+  view: View,
+  width: number,
+  height: number,
+  opts: DrawOptions = {},
+): void {
   ctx.fillStyle = SURFACE
   ctx.fillRect(0, 0, width, height)
 

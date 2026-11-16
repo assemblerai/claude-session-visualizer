@@ -53,8 +53,10 @@ export function createSessionStore(disk: Disk, pathOf: (sessionId: string) => Pr
       if (line.trim() === '') return
       const parsed = parseLine(line)
       if (parsed.outcome === 'record') records.push(parsed.record)
-      else if (parsed.outcome === 'ignored') counts.ignoredKinds[parsed.kind] = (counts.ignoredKinds[parsed.kind] ?? 0) + 1
-      else if (parsed.outcome === 'unknown') counts.unknownKinds[parsed.kind] = (counts.unknownKinds[parsed.kind] ?? 0) + 1
+      else if (parsed.outcome === 'ignored')
+        counts.ignoredKinds[parsed.kind] = (counts.ignoredKinds[parsed.kind] ?? 0) + 1
+      else if (parsed.outcome === 'unknown')
+        counts.unknownKinds[parsed.kind] = (counts.unknownKinds[parsed.kind] ?? 0) + 1
       else counts.invalidLines += 1
     })
     return file.offset !== before
@@ -72,7 +74,8 @@ export function createSessionStore(disk: Disk, pathOf: (sessionId: string) => Pr
     let changed = known === undefined
     try {
       const size = (await disk.stat(session.main.path))?.size
-      if (size === undefined) throw new Refusal(`The session file is no longer there: ${session.main.path}`, 'NOT_FOUND')
+      if (size === undefined)
+        throw new Refusal(`The session file is no longer there: ${session.main.path}`, 'NOT_FOUND')
       if (size !== session.main.offset && (await extend(session.main))) changed = true
 
       for (const paths of await disk.listHelpers(session.main.path)) {
@@ -98,8 +101,16 @@ export function createSessionStore(disk: Disk, pathOf: (sessionId: string) => Pr
     }
 
     if (known && !changed) return known
-    const helpers: HelperFiles[] = [...session.helpers].map(([agentId, h]) => ({ agentId, meta: h.meta, transcript: h.file.transcript }))
-    return { ...session, assembled: assemble({ sessionId, main: session.main.transcript, helpers }), details: new Map() }
+    const helpers: HelperFiles[] = [...session.helpers].map(([agentId, h]) => ({
+      agentId,
+      meta: h.meta,
+      transcript: h.file.transcript,
+    }))
+    return {
+      ...session,
+      assembled: assemble({ sessionId, main: session.main.transcript, helpers }),
+      details: new Map(),
+    }
   }
 
   /** The session, brought up to date with its files. One read at a time per session. */

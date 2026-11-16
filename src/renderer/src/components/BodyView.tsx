@@ -14,7 +14,13 @@ function DiffText({ text }: { text: string }): React.JSX.Element {
   return (
     <>
       {text.split('\n').map((line, i) => {
-        const tone = line.startsWith('+') ? 'text-success' : line.startsWith('-') ? 'text-danger' : line.startsWith('@@') ? 'text-info' : ''
+        const tone = line.startsWith('+')
+          ? 'text-success'
+          : line.startsWith('-')
+            ? 'text-danger'
+            : line.startsWith('@@')
+              ? 'text-info'
+              : ''
         return (
           <span key={i} className={`block ${tone}`}>
             {line || ' '}
@@ -57,16 +63,35 @@ export function BodyText({ body, loadMore }: BodyTextProps): React.JSX.Element {
 
   return (
     <>
-      <pre className={`max-h-96 overflow-auto border-t border-line p-2 font-mono text-[11px] leading-relaxed ${json === null ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'}`}>
-        {text === '' ? <span className="text-subtle">(empty)</span> : body.format === 'diff' ? <DiffText text={text} /> : json !== null ? <JsonText text={json} /> : text}
+      <pre
+        className={`max-h-96 overflow-auto border-t border-line p-2 font-mono text-[11px] leading-relaxed ${json === null ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'}`}
+      >
+        {text === '' ? (
+          <span className="text-subtle">(empty)</span>
+        ) : body.format === 'diff' ? (
+          <DiffText text={text} />
+        ) : json !== null ? (
+          <JsonText text={json} />
+        ) : (
+          text
+        )}
       </pre>
       {next !== null && (
         <div className="flex items-center gap-2 border-t border-line px-2 py-1 text-xs">
-          <button type="button" onClick={() => void more()} disabled={busy} className="text-primary hover:text-primary-hover disabled:opacity-50">
+          <button
+            type="button"
+            onClick={() => void more()}
+            disabled={busy}
+            className="text-primary hover:text-primary-hover disabled:opacity-50"
+          >
             {busy ? 'Loading…' : 'Load more'}
           </button>
           <span className="text-subtle">showing the first {formatBytes(text.length)}</span>
-          {failed && <span role="alert" className="text-danger">{failed}</span>}
+          {failed && (
+            <span role="alert" className="text-danger">
+              {failed}
+            </span>
+          )}
         </div>
       )}
     </>

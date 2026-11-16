@@ -37,7 +37,12 @@ export function RequestsList({ graph, selectedId, onSelect }: ScreenProps): Reac
             return (
               <tr key={node.id} className={`border-t border-line ${node.id === selectedId ? 'bg-surface-raised' : ''}`}>
                 <td className="px-4 py-1.5">
-                  <button type="button" onClick={() => onSelect(node.id)} aria-label={`Open request ${i + 1}`} className="text-primary hover:text-primary-hover">
+                  <button
+                    type="button"
+                    onClick={() => onSelect(node.id)}
+                    aria-label={`Open request ${i + 1}`}
+                    className="text-primary hover:text-primary-hover"
+                  >
                     {i + 1}
                   </button>
                 </td>
@@ -47,14 +52,18 @@ export function RequestsList({ graph, selectedId, onSelect }: ScreenProps): Reac
                   {node.request?.model}
                   {node.error && <span className="ml-2 text-danger">failed</span>}
                 </td>
-                <td className="whitespace-nowrap px-3 py-1.5 text-right text-muted">{replied ? formatDuration(node.endedAt - node.startedAt) : '–'}</td>
+                <td className="whitespace-nowrap px-3 py-1.5 text-right text-muted">
+                  {replied ? formatDuration(node.endedAt - node.startedAt) : '–'}
+                </td>
                 {replied ? (
                   <>
                     <td className="px-3 py-1.5 text-right">{formatCount(usage.input)}</td>
                     <td className="px-3 py-1.5 text-right">{formatCount(usage.cacheRead)}</td>
                     <td className="px-3 py-1.5 text-right">{formatCount(usage.cacheWrite5m + usage.cacheWrite1h)}</td>
                     <td className="px-3 py-1.5 text-right">{formatCount(usage.output)}</td>
-                    <td className="whitespace-nowrap px-4 py-1.5 text-right">{formatCost(node.request?.costUsd ?? null)}</td>
+                    <td className="whitespace-nowrap px-4 py-1.5 text-right">
+                      {formatCost(node.request?.costUsd ?? null)}
+                    </td>
                   </>
                 ) : (
                   <td colSpan={5} className="px-4 py-1.5 text-right text-subtle">

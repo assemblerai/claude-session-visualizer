@@ -16,7 +16,12 @@ export interface OpenSession {
 export function useSessionGraph(sessionId: string | null, live: boolean): OpenSession {
   const { data, isLoading, error } = trpc.session.graph.useQuery(
     { sessionId: sessionId ?? '' },
-    { enabled: sessionId !== null, refetchInterval: live ? 2_000 : false, staleTime: Infinity, placeholderData: keepPreviousData },
+    {
+      enabled: sessionId !== null,
+      refetchInterval: live ? 2_000 : false,
+      staleTime: Infinity,
+      placeholderData: keepPreviousData,
+    },
   )
   const graph = data && data.sessionId === sessionId ? data : null
   return { graph, isLoading: sessionId !== null && isLoading, error: error?.message ?? null }
@@ -31,8 +36,15 @@ export interface NodeBodies {
 /** One node's Input and Output. Fetched on click: bodies stay in main until asked for. */
 export function useNodeDetail(sessionId: string | null, nodeId: string | null): NodeBodies {
   const enabled = sessionId !== null && nodeId !== null
-  const { data, isLoading, error } = trpc.session.nodeDetail.useQuery({ sessionId: sessionId ?? '', nodeId: nodeId ?? '' }, { enabled, staleTime: 30_000 })
-  return { detail: enabled && data?.nodeId === nodeId ? data : null, isLoading: enabled && isLoading, error: error?.message ?? null }
+  const { data, isLoading, error } = trpc.session.nodeDetail.useQuery(
+    { sessionId: sessionId ?? '', nodeId: nodeId ?? '' },
+    { enabled, staleTime: 30_000 },
+  )
+  return {
+    detail: enabled && data?.nodeId === nodeId ? data : null,
+    isLoading: enabled && isLoading,
+    error: error?.message ?? null,
+  }
 }
 
 /** Fetches the next slice of a body too large to send whole. */

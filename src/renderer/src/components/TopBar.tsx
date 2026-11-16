@@ -23,7 +23,9 @@ export function TopBar({ graph, live, onLive, onSummary }: TopBarProps): React.J
 
       {graph && (
         <>
-          <span aria-hidden className="text-subtle">/</span>
+          <span aria-hidden className="text-subtle">
+            /
+          </span>
           <span className="min-w-0 truncate text-sm" title={graph.sessionId}>
             {graph.title ?? graph.sessionId}
           </span>
@@ -41,10 +43,17 @@ export function TopBar({ graph, live, onLive, onSummary }: TopBarProps): React.J
               <dd>{formatCost(graph.totals.costUsd)} est.</dd>
             </div>
           </dl>
-          <button type="button" onClick={onSummary} className="shrink-0 rounded border border-line-control px-2 py-0.5 text-xs text-muted hover:text-on-surface">
+          <button
+            type="button"
+            onClick={onSummary}
+            className="shrink-0 rounded border border-line-control px-2 py-0.5 text-xs text-muted hover:text-on-surface"
+          >
             Summary
           </button>
-          <label className="flex shrink-0 items-center gap-1.5 text-xs text-muted" title="Keep reading the session's files while it is still running">
+          <label
+            className="flex shrink-0 items-center gap-1.5 text-xs text-muted"
+            title="Keep reading the session's files while it is still running"
+          >
             <input type="checkbox" checked={live} onChange={(event) => onLive(event.target.checked)} />
             Live
           </label>

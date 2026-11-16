@@ -20,15 +20,38 @@ export function JsonText({ text }: { text: string }): React.JSX.Element {
       if (at > last) out.push(text.slice(last, at))
       const [whole, str, colon, num, word, punct] = m
       if (str !== undefined && colon !== undefined) {
-        out.push(<span key={k++} className="text-info">{str}</span>, <span key={k++} className="text-muted">{colon}</span>)
+        out.push(
+          <span key={k++} className="text-info">
+            {str}
+          </span>,
+          <span key={k++} className="text-muted">
+            {colon}
+          </span>,
+        )
       } else if (str !== undefined) {
-        out.push(<span key={k++} className="text-success">{str}</span>)
+        out.push(
+          <span key={k++} className="text-success">
+            {str}
+          </span>,
+        )
       } else if (num !== undefined) {
-        out.push(<span key={k++} className="text-warning">{num}</span>)
+        out.push(
+          <span key={k++} className="text-warning">
+            {num}
+          </span>,
+        )
       } else if (word !== undefined) {
-        out.push(<span key={k++} className="text-primary">{word}</span>)
+        out.push(
+          <span key={k++} className="text-primary">
+            {word}
+          </span>,
+        )
       } else if (punct !== undefined) {
-        out.push(<span key={k++} className="text-muted">{punct}</span>)
+        out.push(
+          <span key={k++} className="text-muted">
+            {punct}
+          </span>,
+        )
       }
       last = at + whole.length
     }

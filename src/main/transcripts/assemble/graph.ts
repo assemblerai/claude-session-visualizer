@@ -103,7 +103,8 @@ function answeredIn(index: RequestIndex, tail: readonly string[]): string[] {
     const content = index.resolve(hash)?.content
     if (!Array.isArray(content)) continue
     for (const block of content) {
-      if (isObject(block) && block.type === 'tool_result' && typeof block.tool_use_id === 'string') ids.push(block.tool_use_id)
+      if (isObject(block) && block.type === 'tool_result' && typeof block.tool_use_id === 'string')
+        ids.push(block.tool_use_id)
     }
   }
   return ids
@@ -125,7 +126,8 @@ function inTimeOrder(records: readonly TranscriptRecord[]): TranscriptRecord[] {
     if (!('timestamp' in record) || typeof record.timestamp !== 'string') return
     let at = toMs(record.timestamp)
     // A reply stamped before its own request (two in the whole data set) still follows it.
-    const sent = record.type === 'assistant' && record.requestRef !== undefined ? sentAt.get(record.requestRef) : undefined
+    const sent =
+      record.type === 'assistant' && record.requestRef !== undefined ? sentAt.get(record.requestRef) : undefined
     if (sent !== undefined && at <= sent) at = sent + 0.5
     timed.push({ record, at, i })
   })
@@ -157,7 +159,9 @@ function walkAgent(b: Builder, plan: AgentPlan, all: readonly TranscriptRecord[]
   const requestNodes: GraphNode[] = []
   const syntheticSeen = new Set<string>()
 
-  const base = (at: number): Pick<GraphNode, 'agentId' | 'run' | 'startedAt' | 'endedAt' | 'error' | 'bytesIn' | 'bytesOut'> => ({
+  const base = (
+    at: number,
+  ): Pick<GraphNode, 'agentId' | 'run' | 'startedAt' | 'endedAt' | 'error' | 'bytesIn' | 'bytesOut'> => ({
     agentId: plan.id,
     run,
     startedAt: at,
@@ -179,7 +183,14 @@ function walkAgent(b: Builder, plan: AgentPlan, all: readonly TranscriptRecord[]
     pending.push(id)
   }
 
-  const context = (uuid: string, at: number, label: string, attachmentType: string, value: unknown, source: 'attachment' | 'message' = 'message'): void => {
+  const context = (
+    uuid: string,
+    at: number,
+    label: string,
+    attachmentType: string,
+    value: unknown,
+    source: 'attachment' | 'message' = 'message',
+  ): void => {
     const id = `ctx:${uuid}`
     addNode(
       b,
@@ -245,7 +256,14 @@ function walkAgent(b: Builder, plan: AgentPlan, all: readonly TranscriptRecord[]
       }
     } else if (record.type === 'attachment') {
       const kind = record.attachment.type
-      context(record.uuid, toMs(record.timestamp), kind.replace(/_/g, ' '), kind, record.rendered ?? record.attachment, 'attachment')
+      context(
+        record.uuid,
+        toMs(record.timestamp),
+        kind.replace(/_/g, ' '),
+        kind,
+        record.rendered ?? record.attachment,
+        'attachment',
+      )
     } else if (record.type === 'api-request') {
       const at = toMs(record.timestamp)
       const reply = answerTo.get(record.id) ?? null
@@ -286,7 +304,14 @@ function walkAgent(b: Builder, plan: AgentPlan, all: readonly TranscriptRecord[]
         const tool = unlinked.get(toolUseId)
         if (!tool) continue
         const source = b.byId.get(tool.nodeId)
-        addEdge(b, { from: tool.nodeId, to: id, kind: 'flow', direction: 'out', bytes: source?.bytesOut ?? 0, label: source?.label ?? '' })
+        addEdge(b, {
+          from: tool.nodeId,
+          to: id,
+          kind: 'flow',
+          direction: 'out',
+          bytes: source?.bytesOut ?? 0,
+          label: source?.label ?? '',
+        })
         unlinked.delete(toolUseId)
       }
 
@@ -373,7 +398,15 @@ function walkAgent(b: Builder, plan: AgentPlan, all: readonly TranscriptRecord[]
   for (const tool of unlinked.values()) {
     const next = requestNodes[tool.requestsSeen]
     const source = b.byId.get(tool.nodeId)
-    if (next) addEdge(b, { from: tool.nodeId, to: next.id, kind: 'flow', direction: 'out', bytes: source?.bytesOut ?? 0, label: source?.label ?? '' })
+    if (next)
+      addEdge(b, {
+        from: tool.nodeId,
+        to: next.id,
+        kind: 'flow',
+        direction: 'out',
+        bytes: source?.bytesOut ?? 0,
+        label: source?.label ?? '',
+      })
   }
 
   return totals
@@ -399,7 +432,12 @@ function skillSpans(nodes: readonly GraphNode[]): SkillSpan[] {
   return spans
 }
 
-function warningsOf(files: SessionFiles, indexes: Map<string, RequestIndex>, synthetic: number, unmatched: string[]): SessionWarning[] {
+function warningsOf(
+  files: SessionFiles,
+  indexes: Map<string, RequestIndex>,
+  synthetic: number,
+  unmatched: string[],
+): SessionWarning[] {
   const kinds = new Map<string, number>()
   let invalid = 0
   const count = (counts: ParseCounts): void => {
@@ -414,8 +452,14 @@ function warningsOf(files: SessionFiles, indexes: Map<string, RequestIndex>, syn
   if (invalid > 0) warnings.push({ kind: 'invalid-line', subject: 'lines that could not be read', count: invalid })
   let unresolved = 0
   for (const index of indexes.values()) unresolved += index.unresolved.length
-  if (unresolved > 0) warnings.push({ kind: 'unresolved-fingerprint', subject: 'messages whose content was not recorded', count: unresolved })
-  if (synthetic > 0) warnings.push({ kind: 'synthetic-reply', subject: 'messages Claude Code wrote itself', count: synthetic })
+  if (unresolved > 0)
+    warnings.push({
+      kind: 'unresolved-fingerprint',
+      subject: 'messages whose content was not recorded',
+      count: unresolved,
+    })
+  if (synthetic > 0)
+    warnings.push({ kind: 'synthetic-reply', subject: 'messages Claude Code wrote itself', count: synthetic })
   for (const subject of unmatched) warnings.push({ kind: 'unmatched-helper', subject, count: 1 })
   return warnings
 }
@@ -533,7 +577,14 @@ export function assemble(files: SessionFiles): Assembled {
             head.bytesOut = sizeOf(handed)
           }
         }
-        addEdge(b, { from: state.lastId, to: joinNodeId, kind: 'join', direction: 'out', bytes: sizeOf(state.report), label: 'report' })
+        addEdge(b, {
+          from: state.lastId,
+          to: joinNodeId,
+          kind: 'join',
+          direction: 'out',
+          bytes: sizeOf(state.report),
+          label: 'report',
+        })
       }
       runs.push({ spawnNodeId, headNodeId: head.id, joinNodeId })
     })
@@ -541,7 +592,8 @@ export function assemble(files: SessionFiles): Assembled {
     const totals = totalsOf.get(plan.id) ?? emptyTotals()
     const own = b.nodes.filter((n) => n.agentId === plan.id)
     if (plan.id === MAIN_AGENT) {
-      totals.durationMs = own.length === 0 ? 0 : Math.max(...own.map((n) => n.endedAt)) - Math.min(...own.map((n) => n.startedAt))
+      totals.durationMs =
+        own.length === 0 ? 0 : Math.max(...own.map((n) => n.endedAt)) - Math.min(...own.map((n) => n.startedAt))
     } else {
       // An agent node spans its run; the helper's time is the sum of its runs.
       plan.runs.forEach((_, k) => {

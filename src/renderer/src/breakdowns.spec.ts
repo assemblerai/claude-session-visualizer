@@ -51,6 +51,11 @@ describe('format', () => {
   })
 
   it('shortens large counts', () => {
-    expect([formatCount(999), formatCount(1_500), formatCount(48_000), formatCount(2_340_000)]).toEqual(['999', '1.5k', '48k', '2.34M'])
+    expect([formatCount(999), formatCount(1_500), formatCount(48_000), formatCount(2_340_000)]).toEqual([
+      '999',
+      '1.5k',
+      '48k',
+      '2.34M',
+    ])
   })
 })

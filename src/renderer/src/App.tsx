@@ -47,7 +47,11 @@ export function App(): React.JSX.Element {
       </p>
     )
   } else if (!graph) {
-    screen = <p className="p-6 text-sm text-muted">{isLoading ? 'Reading the session…' : 'Import or open a session from the Sessions list.'}</p>
+    screen = (
+      <p className="p-6 text-sm text-muted">
+        {isLoading ? 'Reading the session…' : 'Import or open a session from the Sessions list.'}
+      </p>
+    )
   } else if (section === 'chart') {
     screen = (
       <Chart
@@ -81,8 +85,20 @@ export function App(): React.JSX.Element {
           }}
         />
       }
-      panel={showPanel && graph ? <DetailsPanel graph={graph} selectedId={selectedId} onSelect={select} onClose={() => setPanelOpen(false)} /> : null}
-      nav={<SideNav section={section} onSection={setSection} hasSession={sessionId !== null} collapsed={navCollapsed} onCollapsed={setNavCollapsed} />}
+      panel={
+        showPanel && graph ? (
+          <DetailsPanel graph={graph} selectedId={selectedId} onSelect={select} onClose={() => setPanelOpen(false)} />
+        ) : null
+      }
+      nav={
+        <SideNav
+          section={section}
+          onSection={setSection}
+          hasSession={sessionId !== null}
+          collapsed={navCollapsed}
+          onCollapsed={setNavCollapsed}
+        />
+      }
     >
       {screen}
     </AppLayout>
