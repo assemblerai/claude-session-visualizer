@@ -1,11 +1,19 @@
 {
-  "name": "session-manager",
-  "productName": "Session Manager",
+  "name": "claude-session-visualizer",
+  "productName": "Claude Session Visualizer",
   "version": "0.1.0",
   "description": "A visual of a Claude session: agents, skills, tools, API requests, tokens and cost.",
   "main": "./out/main/index.js",
-  "author": "byrotron",
+  "author": "Assembler AI LLC",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/assemblerai/claude-session-visualizer.git"
+  },
+  "homepage": "https://github.com/assemblerai/claude-session-visualizer#readme",
+  "bugs": {
+    "url": "https://github.com/assemblerai/claude-session-visualizer/issues"
+  },
   "private": true,
   "type": "module",
   "scripts": {

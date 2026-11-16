@@ -19,7 +19,7 @@ export function TopBar({ graph, live, onLive, onSummary }: TopBarProps): React.J
   return (
     <header className="flex h-11 shrink-0 items-center gap-3 border-b border-line bg-surface-raised px-4">
       <Activity aria-hidden strokeWidth={1.5} className="size-4 text-primary" />
-      <h1 className="text-sm font-medium">Session Manager</h1>
+      <h1 className="text-sm font-medium">Claude Session Visualizer</h1>
 
       {graph && (
         <>

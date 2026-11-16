@@ -1,4 +1,4 @@
-# sessionclaude-session-visualizer
+# Claude Session Visualizer
 
 MIT licence · early development
 
@@ -43,8 +43,8 @@ Installers for **Windows** (x64) and **macOS** (Apple silicon and Intel) are on 
 Install and run from a **Windows** terminal (PowerShell or cmd), not from WSL. Electron downloads a platform-specific binary at install time, so a `node_modules` installed from WSL won't run on Windows.
 
 ```powershell
-git clone https://github.com/<owner>/sessionclaude-session-visualizer.git
-cd sessionclaude-session-visualizer
+git clone https://github.com/assemblerai/claude-session-visualizer.git
+cd claude-session-visualizer
 npm install
 npm run dev
 ```

@@ -16,7 +16,7 @@ function constructWindow(preloadPath: string): BrowserWindow {
     minHeight: 600,
     show: false,
     autoHideMenuBar: true,
-    title: 'Session Manager',
+    title: 'Claude Session Visualizer',
     // The renderer's own ground, so the first paint is not a lighter flash.
     backgroundColor: '#1c1c1e',
     webPreferences: {

@@ -1,6 +1,6 @@
-appId: com.byrotron.session-manager
-productName: Session Manager
-copyright: Copyright © 2026 byrotron
+appId: com.assemblerai.claude-session-visualizer
+productName: Claude Session Visualizer
+copyright: Copyright © 2026 Assembler AI LLC
 
 directories:
   buildResources: build

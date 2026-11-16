@@ -12,7 +12,7 @@ import { openMainWindow } from './windows/main-window.js'
 
 // Electron derives userData from the app name, which is "Electron" until this
 // is set. Must run before anything calls `app.getPath`.
-app.setName('session-manager')
+app.setName('claude-session-visualizer')
 
 const config = loadConfig()
 const log = createLog(join(app.getPath('userData'), 'logs', 'main.log'))
@@ -60,7 +60,7 @@ function createContext(): Context {
 app
   .whenReady()
   .then(() => {
-    log.write('info', `launch: Session Manager ${app.getVersion()} on ${process.platform}`)
+    log.write('info', `launch: Claude Session Visualizer ${app.getVersion()} on ${process.platform}`)
     const context = createContext()
     registerTrpcIpc(() => context, log)
     createWindow()
@@ -72,8 +72,8 @@ app
   // A launch that throws leaves a packaged app with no window and nothing on
   // screen. Log first, so the dialog can point at a file that exists.
   .catch((error: unknown) => {
-    log.write('error', 'launch: Session Manager could not start', error)
-    dialog.showErrorBox('Session Manager could not start', describeError(error))
+    log.write('error', 'launch: Claude Session Visualizer could not start', error)
+    dialog.showErrorBox('Claude Session Visualizer could not start', describeError(error))
     app.exit(1)
   })
 

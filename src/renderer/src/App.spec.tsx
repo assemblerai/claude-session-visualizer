@@ -96,7 +96,7 @@ describe('App', () => {
   it('shows the top bar, the left-hand navigation and the main region', () => {
     render(<App />)
 
-    expect(screen.getByRole('banner')).toHaveTextContent('Session Manager')
+    expect(screen.getByRole('banner')).toHaveTextContent('Claude Session Visualizer')
     expect(screen.getByRole('main')).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Sections' })).toBeInTheDocument()
     expect(screen.getByText('v1.2.3')).toBeInTheDocument()
