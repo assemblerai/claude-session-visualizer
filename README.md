@@ -1,6 +1,6 @@
 # sessionclaude-session-visualizer
 
-**Version 0.0.1** · MIT licence · early development
+MIT licence · early development
 
 A desktop app that turns a Claude Code session into a picture: which agents ran, what they called, every request sent to the Anthropic API, and what it all cost.
 
@@ -28,11 +28,15 @@ Claude Code writes a full record of every session to disk as JSONL. Those files 
 | Tokens & cost | Token and cost breakdowns by agent, model and token kind                                             |
 | Files         | Every file the session read or changed, with diffs                                                   |
 
+## Download
+
+Installers for **Windows** (x64) and **macOS** (Apple silicon and Intel) are on the [Releases](../../releases) page. The macOS build is signed and notarised. The Windows installer is not signed yet: SmartScreen shows "Windows protected your PC", and **More info → Run anyway** gets past it.
+
 ## Requirements
 
 - Session files from **Claude Code 2.1.300 or later**. From that version the transcripts record every API request, which is what lets the app rebuild the payloads without a proxy. Sessions with no request records are listed but can't be opened.
 - **Node.js 22** or later and npm, to build from source.
-- **Windows** is the tested platform, and the only one with a packaged installer so far. The app finds sessions in your Windows home and in every WSL distro's home automatically.
+- **Windows** or **macOS**. On Windows the app also finds sessions in every WSL distro's home automatically.
 
 ## Getting started
 
@@ -59,7 +63,7 @@ To build an installer:
 npm run package
 ```
 
-The NSIS installer is written to `dist/`.
+The installer for the platform you're on (NSIS on Windows, DMG on macOS) is written to `dist/`.
 
 ## Privacy
 
@@ -102,7 +106,7 @@ src/
 | `npm run format`    | Formats every file with Prettier                            |
 | `npm run check`     | Format check, lint, typecheck and tests: what CI runs       |
 | `npm run build`     | Typecheck, then a production build into `out/`              |
-| `npm run package`   | Builds, then makes the Windows installer in `dist/`         |
+| `npm run package`   | Builds, then makes this platform's installer in `dist/`     |
 
 ### Adding a section
 
@@ -112,12 +116,29 @@ src/
 
 ## Status and known gaps
 
-This is a 0.0.x release: it works on the sessions it has been tested against, but expect rough edges and breaking changes.
+This is an early release: it works on the sessions it has been tested against, but expect rough edges and breaking changes.
 
 - The Claude Code transcript format is undocumented and can change between versions. Unusual session shapes are counted as warnings and drawn as plainly as possible rather than handled specially.
 - Live mode re-reads the files every two seconds rather than watching them.
 - To-scale mode can get very wide for sessions with hours of idle time.
-- Packaging targets Windows only.
+
+## Releasing
+
+Every merge to `main` is a release. The **Release** workflow (`.github/workflows/release.yml`) runs the checks, bumps the patch version, commits `Release vX.Y.Z` with its tag back to `main`, builds and signs on Windows and macOS, and publishes a GitHub release with both installers. A release is published only when both builds succeed.
+
+For a minor or major release, open **Actions → Release → Run workflow** and pick the bump.
+
+Pull requests run the same checks and package the app unsigned on both platforms, so a merge is never the first time a build is tried.
+
+macOS signing and notarisation use these repository secrets:
+
+| Secret                 | What it holds                                                |
+| ---------------------- | ------------------------------------------------------------ |
+| `MAC_CSC_LINK`         | The Developer ID Application certificate `.p12`, base64      |
+| `MAC_CSC_KEY_PASSWORD` | That `.p12`'s password                                       |
+| `APPLE_API_KEY_BASE64` | An App Store Connect API key (`AuthKey_<id>.p8`), base64     |
+| `APPLE_API_KEY_ID`     | That key's ID                                                |
+| `APPLE_API_ISSUER`     | The issuer ID shown above the keys list in App Store Connect |
 
 ## Contributing
 

@@ -1,9 +1,10 @@
 name: CI
 
+# Pull requests only: a push to main is checked by the Release workflow, which
+# refuses to release a main that fails these checks.
 on:
-  push:
-    branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -26,3 +27,24 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+
+  # Merging releases, so a merge must not be the first time the app is packaged
+  # on each platform. Unsigned, and the installers are discarded.
+  package:
+    name: package (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Package (unsigned)
+        run: npm run package -- --publish never -c.mac.notarize=false
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false

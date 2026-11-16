@@ -1,5 +1,6 @@
 appId: com.byrotron.session-manager
 productName: Session Manager
+copyright: Copyright © 2026 byrotron
 
 directories:
   buildResources: build
@@ -11,13 +12,35 @@ files:
   - package.json
   - '!**/*.map'
 
+mac:
+  category: public.app-category.developer-tools
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+  # Gatekeeper refuses an unhardened app, and notarisation will not accept one.
+  hardenedRuntime: true
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  # Apple verifies the signature at notarisation; a local assessment only fails
+  # on a machine whose Gatekeeper has not seen the ticket yet.
+  gatekeeperAssess: false
+  notarize: true
+
+dmg:
+  artifactName: ${name}-${version}-${arch}.${ext}
+
 win:
   target:
     - target: nsis
       arch: [x64]
+  # Unsigned: SmartScreen shows "Windows protected your PC" and
+  # More info -> Run anyway gets past it. See README, "Releasing".
 
 nsis:
   oneClick: false
-  perMachine: false
+  perMachine: false # a per-user install needs no elevation
   allowToChangeInstallationDirectory: true
-  artifactName: ${productName}-${version}-${arch}-setup.${ext}
+  artifactName: ${name}-${version}-${arch}-setup.${ext}
+
+# Releases are made by .github/workflows/release.yml, which uploads dist/ itself.
+publish: null
