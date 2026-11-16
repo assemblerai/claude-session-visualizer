@@ -1,7 +1,12 @@
+// @ts-check
 import eslintComments from '@eslint-community/eslint-plugin-eslint-comments'
+import js from '@eslint/js'
+import prettier from 'eslint-config-prettier'
 import jsxA11y from 'eslint-plugin-jsx-a11y'
+import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import testingLibrary from 'eslint-plugin-testing-library'
+import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 const NO_DEFAULT_EXPORT = { selector: 'ExportDefaultDeclaration', message: 'Default export. Export it by name.' }
@@ -21,16 +26,33 @@ const FORBIDDEN_IN_SPECS = [
   { name: 'node:child_process', message: 'Stub the driver; a unit test never starts a process.' },
 ]
 
-export default [
-  { ignores: ['out/**', 'dist/**', 'node_modules/**', '*.config.ts', '*.config.mjs'] },
+export default tseslint.config(
+  { ignores: ['out/**', 'dist/**', 'node_modules/**', 'docs/**'] },
 
-  // ---- everything ---------------------------------------------------------
+  // ---- baseline: recommended sets -----------------------------------------
+  js.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
   {
-    files: ['src/**/*.ts', 'src/**/*.tsx'],
-    languageOptions: { parser: tseslint.parser, parserOptions: { ecmaFeatures: { jsx: true } } },
-    plugins: { '@typescript-eslint': tseslint.plugin },
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.web.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    linterOptions: { reportUnusedDisableDirectives: 'error' },
+  },
+  // Plain JS config files are outside both tsconfigs.
+  { files: ['**/*.{js,mjs,cjs}'], ...tseslint.configs.disableTypeChecked },
+  { files: ['**/*.{js,mjs,cjs}', '*.config.ts'], languageOptions: { globals: globals.node } },
+
+  // ---- everything in src ---------------------------------------------------
+  {
+    files: ['src/**/*.{ts,tsx}'],
     rules: {
-      '@typescript-eslint/no-explicit-any': 'error',
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
+      'no-console': ['error', { allow: ['warn', 'error'] }],
+      'prefer-const': 'error',
       '@typescript-eslint/ban-ts-comment': [
         'error',
         { 'ts-expect-error': 'allow-with-description', 'ts-ignore': true, 'ts-nocheck': true },
@@ -39,6 +61,10 @@ export default [
         'error',
         { prefer: 'type-imports', fixStyle: 'inline-type-imports', disallowTypeAnnotations: false },
       ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
       'no-restricted-syntax': ['error', NO_DEFAULT_EXPORT],
     },
   },
@@ -46,6 +72,7 @@ export default [
   // ---- main, preload, shared ---------------------------------------------
   {
     files: ['src/main/**/*.ts', 'src/preload/**/*.ts', 'src/shared/**/*.ts'],
+    languageOptions: { globals: globals.node },
     rules: {
       'no-restricted-properties': [
         'error',
@@ -54,26 +81,24 @@ export default [
     },
   },
 
-  // ---- main (type-aware) --------------------------------------------------
-  {
-    files: ['src/main/**/*.ts'],
-    languageOptions: {
-      parser: tseslint.parser,
-      parserOptions: { project: './tsconfig.node.json', tsconfigRootDir: import.meta.dirname },
-    },
-    rules: { '@typescript-eslint/no-floating-promises': 'error' },
-  },
-
   // ---- renderer -----------------------------------------------------------
   {
-    files: ['src/renderer/**/*.ts', 'src/renderer/**/*.tsx'],
-    plugins: {
-      '@eslint-community/eslint-comments': eslintComments,
-      'jsx-a11y': jsxA11y,
-      'react-hooks': reactHooks,
+    files: ['src/renderer/**/*.{ts,tsx}'],
+    ...react.configs.flat.recommended,
+    ...react.configs.flat['jsx-runtime'],
+    languageOptions: {
+      ...react.configs.flat.recommended.languageOptions,
+      globals: globals.browser,
     },
+    settings: { react: { version: 'detect' } },
+  },
+  { files: ['src/renderer/**/*.{ts,tsx}'], ...reactHooks.configs.flat.recommended },
+  { files: ['src/renderer/**/*.{ts,tsx}'], ...jsxA11y.flatConfigs.recommended },
+  {
+    files: ['src/renderer/**/*.{ts,tsx}'],
+    plugins: { '@eslint-community/eslint-comments': eslintComments },
     rules: {
-      'react-hooks/rules-of-hooks': 'error',
+      'react/prop-types': 'off', // TypeScript types the props.
       'react-hooks/exhaustive-deps': 'error',
       'no-restricted-syntax': ['error', NO_DEFAULT_EXPORT, NO_CLASS_COMPONENT],
       '@eslint-community/eslint-comments/no-restricted-disable': ['error', 'react-hooks/exhaustive-deps'],
@@ -81,18 +106,19 @@ export default [
         'error',
         { name: 'fetch', message: 'Direct HTTP. Reach main through the tRPC hooks in hooks/.' },
       ],
-      'jsx-a11y/click-events-have-key-events': 'error',
-      'jsx-a11y/no-static-element-interactions': 'error',
     },
   },
   {
-    files: ['src/renderer/**/*.ts', 'src/renderer/**/*.tsx'],
+    files: ['src/renderer/**/*.{ts,tsx}'],
     ignores: ['src/renderer/src/hooks/**', 'src/renderer/src/main.tsx', 'src/renderer/src/trpc.ts'],
     rules: { 'no-restricted-imports': ['error', { patterns: [NO_TRPC_OUTSIDE_HOOKS] }] },
   },
   {
-    files: ['src/renderer/**/*.spec.ts', 'src/renderer/**/*.spec.tsx'],
-    plugins: { 'testing-library': testingLibrary },
+    files: ['src/renderer/**/*.spec.{ts,tsx}'],
+    ...testingLibrary.configs['flat/react'],
+  },
+  {
+    files: ['src/renderer/**/*.spec.{ts,tsx}'],
     rules: {
       'testing-library/no-container': 'error',
       'testing-library/no-node-access': 'error',
@@ -100,9 +126,15 @@ export default [
     },
   },
 
-  // ---- specifications (last, so it applies over the blocks above) --------
+  // ---- specifications (after the blocks above, so it applies over them) ----
   {
-    files: ['src/**/*.spec.ts', 'src/**/*.spec.tsx'],
+    files: ['src/**/*.spec.{ts,tsx}'],
     rules: { 'no-restricted-imports': ['error', { paths: FORBIDDEN_IN_SPECS }] },
   },
-]
+
+  // ---- config files: tooling expects a default export ----------------------
+  { files: ['*.config.{ts,mjs}'], rules: { 'no-restricted-syntax': 'off' } },
+
+  // ---- formatting is Prettier's job (last) --------------------------------
+  prettier,
+)
