@@ -99,6 +99,8 @@ src/
 | `npm test`          | Runs the Vitest suites                                      |
 | `npm run typecheck` | Type-checks the node and web projects                       |
 | `npm run lint`      | Runs ESLint with zero warnings allowed                      |
+| `npm run format`    | Formats every file with Prettier                            |
+| `npm run check`     | Format check, lint, typecheck and tests: what CI runs       |
 | `npm run build`     | Typecheck, then a production build into `out/`              |
 | `npm run package`   | Builds, then makes the Windows installer in `dist/`         |
 
@@ -119,13 +121,14 @@ This is a 0.0.x release: it works on the sessions it has been tested against, bu
 
 ## Contributing
 
-Issues and pull requests are welcome. Before opening a PR, run:
+Issues and pull requests are welcome. Code is formatted with Prettier and linted with ESLint (`eslint.config.mjs`); your editor will pick up both, plus `.editorconfig`. Before opening a PR, run:
 
 ```powershell
-npm run typecheck
-npm run lint
-npm test
+npm run format
+npm run check
 ```
+
+CI runs the same checks on every pull request.
 
 ## Licence
 
