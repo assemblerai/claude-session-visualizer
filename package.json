@@ -1,7 +1,7 @@
 {
   "name": "claude-session-visualizer",
   "productName": "Claude Session Visualizer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A visual of a Claude session: agents, skills, tools, API requests, tokens and cost.",
   "main": "./out/main/index.js",
   "author": "Assembler AI LLC",
