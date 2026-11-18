@@ -271,7 +271,9 @@ function walkAgent(b: Builder, plan: AgentPlan, all: readonly TranscriptRecord[]
       const usage: Usage = reply ? reply.usage : { ...ZERO_USAGE }
       const costUsd = reply ? costOf(usage, model) : 0
       let bytesIn = 0
-      for (const hash of record.tail) bytesIn += sizeOf(index.resolve(hash))
+      // Only what is new to this request. Not `record.tail`: that is the whole list when the log wrote it in full.
+      for (const hash of index.fingerprints(record.id).slice(index.kept(record.id)))
+        bytesIn += sizeOf(index.resolve(hash))
 
       const id = `req:${record.id}`
       const node = addNode(

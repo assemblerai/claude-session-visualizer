@@ -64,6 +64,59 @@ describe('indexRequests, on a chain', () => {
   })
 })
 
+describe('indexRequests, on a request written out in full', () => {
+  const records = parseTranscript(
+    [
+      request('r1', ['a', 'b']),
+      request('r2', ['c'], 'r1', 2),
+      request('r3', ['a', 'b', 'c', 'd', 'e']),
+      request('r4', ['x', 'y']),
+    ].join('\n'),
+  ).records
+  const index = indexRequests(records)
+
+  it('counts what it shares with the previous request as carried over, though it has no base', () => {
+    expect(index.fingerprints('r3')).toEqual(['a', 'b', 'c', 'd', 'e'])
+    expect(index.kept('r3')).toBe(3)
+  })
+
+  it('counts nothing as carried over when the previous request shares no opening messages', () => {
+    expect(index.kept('r4')).toBe(0)
+  })
+
+  it('compares only with requests of the same querySource', () => {
+    const mixed = indexRequests(
+      parseTranscript(
+        [
+          line({
+            type: 'api-request',
+            id: 'm1',
+            timestamp: '2026-11-15T00:00:00.000Z',
+            querySource: 'sdk',
+            tail: ['a'],
+          }),
+          line({
+            type: 'api-request',
+            id: 's1',
+            timestamp: '2026-11-15T00:00:00.000Z',
+            querySource: 'title',
+            tail: ['t'],
+          }),
+          line({
+            type: 'api-request',
+            id: 'm2',
+            timestamp: '2026-11-15T00:00:00.000Z',
+            querySource: 'sdk',
+            tail: ['a', 'b'],
+          }),
+        ].join('\n'),
+      ).records,
+    )
+    expect(mixed.kept('m2')).toBe(1)
+    expect(mixed.kept('s1')).toBe(0)
+  })
+})
+
 describe('indexRequests, resolving from the transcript', () => {
   const user = (uuid: string, content: unknown): string =>
     line({ type: 'user', uuid, timestamp: '2026-11-15T00:00:00.000Z', message: { role: 'user', content } })

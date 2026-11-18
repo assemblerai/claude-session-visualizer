@@ -89,7 +89,10 @@ export interface RequestIndex {
   byId: ReadonlyMap<string, ApiRequestRecord>
   /** The request's full list of fingerprints, by following base / keep / tail. */
   fingerprints(requestId: string): string[]
-  /** How many of the request's leading messages were carried over from its base. */
+  /**
+   * How many of the request's leading messages were carried over from the request before it: from its base when
+   * it has one, otherwise from the previous request of the same `querySource`.
+   */
   kept(requestId: string): number
   /** The message behind a fingerprint; `undefined` when its content was not recorded. */
   resolve(hash: string): Message | undefined
@@ -149,8 +152,18 @@ export function indexRequests(records: readonly TranscriptRecord[]): RequestInde
     fingerprints,
     kept(requestId) {
       const r = byId.get(requestId)
-      if (r?.base === undefined || !byId.has(r.base)) return 0
-      return Math.min(r.keep, fingerprints(r.base).length)
+      if (r === undefined) return 0
+      if (r.base !== undefined && byId.has(r.base)) return Math.min(r.keep, fingerprints(r.base).length)
+      // No base does not mean a fresh start: Claude Code sometimes writes a continuing request out in full.
+      // Compare with the previous request of the same kind, and count the messages they open with in common.
+      const at = requests.indexOf(r)
+      const previous = requests.slice(0, at).findLast((p) => p.querySource === r.querySource)
+      if (previous === undefined) return 0
+      const before = fingerprints(previous.id)
+      const mine = fingerprints(r.id)
+      let n = 0
+      while (n < before.length && n < mine.length && before[n] === mine[n]) n++
+      return n
     },
     resolve: (hash) => lookup.get(hash),
     shape: (shapeHash) => (shapeHash === undefined ? undefined : shapes.get(shapeHash)),
