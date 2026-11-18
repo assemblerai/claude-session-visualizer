@@ -33,7 +33,7 @@ jobs:
     steps:
       # main as it is now, not the commit that triggered this run: an earlier
       # queued release may have pushed a version commit since.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: main
 
@@ -77,7 +77,7 @@ jobs:
     env:
       TAG: v${{ needs.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ env.TAG }}
 
