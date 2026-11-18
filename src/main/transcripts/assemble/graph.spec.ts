@@ -166,7 +166,7 @@ describe('assemble, rare shapes', () => {
     expect(node).toMatchObject({
       error: false,
       request: { hasReply: false },
-      label: 'claude-next-9 · no reply recorded',
+      label: 'API request',
     })
   })
 

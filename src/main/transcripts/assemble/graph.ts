@@ -48,13 +48,6 @@ export interface Assembled {
   requestIndexes: Map<string, RequestIndex>
 }
 
-const LABEL_CHARS = 60
-
-function clip(text: string): string {
-  const line = text.replace(/\s+/g, ' ').trim()
-  return line.length > LABEL_CHARS ? `${line.slice(0, LABEL_CHARS - 1)}…` : line
-}
-
 function textOf(content: unknown): string {
   if (typeof content === 'string') return content
   if (!Array.isArray(content)) return ''
@@ -246,10 +239,9 @@ function walkAgent(b: Builder, plan: AgentPlan, all: readonly TranscriptRecord[]
         context(record.uuid, at, 'injected text', 'injected-text', content)
       } else {
         const id = `prompt:${record.uuid}`
-        const text = textOf(content)
         addNode(
           b,
-          { ...base(at), id, kind: 'prompt', label: clip(text) || 'Prompt', bytesOut: sizeOf(content) },
+          { ...base(at), id, kind: 'prompt', label: 'Prompt', bytesOut: sizeOf(content) },
           { kind: 'value', title: 'Prompt', value: content },
         )
         pending.push(id)
@@ -282,7 +274,7 @@ function walkAgent(b: Builder, plan: AgentPlan, all: readonly TranscriptRecord[]
           ...base(at),
           id,
           kind: 'request',
-          label: reply ? model : `${model} · no reply recorded`,
+          label: 'API request',
           // Two requests in the whole data set have a reply stamped before the request.
           endedAt: reply ? Math.max(at, reply.lastAt) : at,
           error: reply?.isApiError === true,
@@ -371,7 +363,7 @@ function walkAgent(b: Builder, plan: AgentPlan, all: readonly TranscriptRecord[]
         const id = `result:${record.uuid}`
         addNode(
           b,
-          { ...base(at), id, kind: 'result', label: clip(text) || 'Result', bytesOut: sizeOf(text) },
+          { ...base(at), id, kind: 'result', label: 'Result', bytesOut: sizeOf(text) },
           { kind: 'value', title: 'Result', value: text },
         )
         addEdge(b, { from: requestId, to: id, kind: 'flow', direction: 'out', bytes: sizeOf(text), label: 'result' })
