@@ -1,87 +1,54 @@
 name: Release
+run-name: Release ${{ github.ref_name }}
 
-# Every push to main that changes the app ships a patch release. For a minor or major release, run
-# this workflow by hand from the Actions tab and pick the bump.
+# Builds and publishes the release for a version tag. Started by the Version
+# workflow after it tags; to rebuild a version, run this by hand from the
+# Actions tab with "Use workflow from" set to the tag.
 on:
-  push:
-    branches: [main]
-    # A push that only changes docs or GitHub configuration ships no new app.
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.github/**'
-      - 'LICENSE'
   workflow_dispatch:
-    inputs:
-      bump:
-        description: Which part of the version to bump
-        type: choice
-        options: [patch, minor, major]
-        default: patch
+  # A tag pushed by a person (GITHUB_TOKEN tag pushes start nothing).
+  push:
+    tags: ['v*']
 
 permissions:
-  contents: write # push the version commit and tag, and make the release
+  contents: write # make and publish the release
 
-# One release at a time, in order. A push that lands while a release is running
-# waits, and then releases on top of it.
 concurrency:
-  group: release
+  group: release-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
-  # Check, bump, tag, and make one draft release for both builds to upload into.
-  # Left to the builds, each would make its own draft for the tag.
-  version:
-    if: github.ref == 'refs/heads/main'
+  # One draft, made before either build starts. Left to the builds, each would
+  # make its own draft for the tag.
+  draft:
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.bump.outputs.version }}
+      version: ${{ steps.draft.outputs.version }}
     steps:
-      # main as it is now, not the commit that triggered this run: an earlier
-      # queued release may have pushed a version commit since.
-      - uses: actions/checkout@v7
-        with:
-          ref: main
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-
-      - run: npm ci
-
-      - name: Check
-        run: npm run check
-
-      # The push uses GITHUB_TOKEN, which never starts another workflow run, so
-      # the version commit does not release itself.
-      - name: Bump the version
-        id: bump
-        env:
-          BUMP: ${{ inputs.bump || 'patch' }}
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          TAG="$(npm version "$BUMP" -m 'Release v%s')"
-          git push --atomic origin HEAD:main "refs/tags/$TAG"
-          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
-
       - name: Make the draft release
+        id: draft
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: v${{ steps.bump.outputs.version }}
-        run: gh release create "$TAG" --draft --verify-tag --title "$TAG" --generate-notes
+          TAG: ${{ github.ref_name }}
+        run: |
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "A release for $TAG already exists; the builds will upload into it."
+          else
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --draft --verify-tag --title "$TAG" --generate-notes
+          fi
 
   build:
     name: build (${{ matrix.os }})
-    needs: version
+    needs: draft
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
     env:
-      TAG: v${{ needs.version.outputs.version }}
+      TAG: v${{ needs.draft.outputs.version }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -159,11 +126,11 @@ jobs:
 
   # Only once both platforms have uploaded: a release is never public half-built.
   publish:
-    needs: [version, build]
+    needs: [draft, build]
     runs-on: ubuntu-latest
     steps:
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: v${{ needs.version.outputs.version }}
+          TAG: v${{ needs.draft.outputs.version }}
         run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest

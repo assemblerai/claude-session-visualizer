@@ -124,9 +124,12 @@ This is an early release: it works on the sessions it has been tested against, b
 
 ## Releasing
 
-Every merge to `main` is a release. The **Release** workflow (`.github/workflows/release.yml`) runs the checks, bumps the patch version, commits `Release vX.Y.Z` with its tag back to `main`, builds and signs on Windows and macOS, and publishes a GitHub release with both installers. A release is published only when both builds succeed.
+Every merge to `main` that changes the app is a release, in two workflows:
 
-For a minor or major release, open **Actions → Release → Run workflow** and pick the bump.
+1. **Version** (`.github/workflows/version.yml`) runs the checks, bumps the patch version, pushes a `Release vX.Y.Z` commit and its tag to `main`, and starts the Release workflow on the tag.
+2. **Release** (`.github/workflows/release.yml`), shown in Actions as **Release vX.Y.Z**, builds and signs on Windows and macOS and publishes a GitHub release with both installers. A release is published only when both builds succeed.
+
+Pushes that only change docs, `.github/` or the licence don't release. For a minor or major release, open **Actions → Version → Run workflow** and pick the bump. To rebuild a version, open **Actions → Release → Run workflow** and pick its tag.
 
 Pull requests run the same checks and package the app unsigned on both platforms, so a merge is never the first time a build is tried.
 

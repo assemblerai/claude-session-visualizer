@@ -1,0 +1,68 @@
+name: Version
+
+# Every push to main that changes the app bumps the patch version, tags it, and
+# starts the Release workflow on that tag. For a minor or major release, run
+# this workflow by hand from the Actions tab and pick the bump.
+on:
+  push:
+    branches: [main]
+    # A push that only changes docs or GitHub configuration ships no new app.
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/**'
+      - 'LICENSE'
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Which part of the version to bump
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: write # push the version commit and tag
+  actions: write # start the Release workflow
+
+# One bump at a time, in order. A push that lands while one is running waits,
+# and then bumps on top of it.
+concurrency:
+  group: version
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      # main as it is now, not the commit that triggered this run: an earlier
+      # queued run may have pushed a version commit since.
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check
+        run: npm run check
+
+      # The push uses GITHUB_TOKEN, which never starts a workflow run by itself:
+      # the version commit does not bump again, and the tag does not release.
+      # The Release workflow is started explicitly instead, on the tag, so its
+      # run is named after the version.
+      - name: Bump, tag and release
+        env:
+          BUMP: ${{ inputs.bump || 'patch' }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          TAG="$(npm version "$BUMP" -m 'Release v%s')"
+          git push --atomic origin HEAD:main "refs/tags/$TAG"
+          gh workflow run release.yml --ref "$TAG"
+          echo "Started the Release workflow for $TAG" >> "$GITHUB_STEP_SUMMARY"
