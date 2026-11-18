@@ -1,3 +1,5 @@
+<img src="build/icon.png" alt="" width="96" align="right">
+
 # Claude Session Visualizer
 
 MIT licence · early development
