@@ -4,10 +4,26 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Major versions are upgraded by hand: they usually need code or peer
+    # changes that a bot PR cannot make, and fail CI until someone does.
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+    # Packages that must move together, so no PR installs a mismatched set.
     groups:
+      trpc:
+        patterns: ['@trpc/*']
+      react:
+        patterns: ['react', 'react-dom', '@types/react', '@types/react-dom']
       dev-dependencies:
         dependency-type: development
+      dependencies:
+        dependency-type: production
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    groups:
+      actions:
+        patterns: ['*']

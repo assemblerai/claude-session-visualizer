@@ -1,10 +1,16 @@
 name: Release
 
-# Every push to main ships a patch release. For a minor or major release, run
+# Every push to main that changes the app ships a patch release. For a minor or major release, run
 # this workflow by hand from the Actions tab and pick the bump.
 on:
   push:
     branches: [main]
+    # A push that only changes docs or GitHub configuration ships no new app.
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/**'
+      - 'LICENSE'
   workflow_dispatch:
     inputs:
       bump:
@@ -33,11 +39,11 @@ jobs:
     steps:
       # main as it is now, not the commit that triggered this run: an earlier
       # queued release may have pushed a version commit since.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: main
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -77,11 +83,11 @@ jobs:
     env:
       TAG: v${{ needs.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ env.TAG }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -117,7 +123,13 @@ jobs:
         if: runner.os == 'macOS'
         env:
           APPLE_API_KEY_BASE64: ${{ secrets.APPLE_API_KEY_BASE64 }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         run: |
+          # notarytool rejects anything else, but only after the whole build.
+          if ! [[ "$APPLE_API_ISSUER" =~ ^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$ ]]; then
+            echo "::error::APPLE_API_ISSUER is not a UUID. Copy the Issuer ID from App Store Connect > Users and Access > Integrations > App Store Connect API."
+            exit 1
+          fi
           echo "$APPLE_API_KEY_BASE64" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
           chmod 600 "$RUNNER_TEMP/AuthKey.p8"
           # notarytool only says "invalidPEMDocument", and only after the whole build.
